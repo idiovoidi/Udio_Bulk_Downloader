@@ -460,9 +460,12 @@ function exportSongChecklist() {
     text += '═══════════════════════════════════════════════════════════\n\n';
     
     rootSongs.forEach((song, i) => {
-      text += `[ ] ${i + 1}. ${song.title || 'Untitled'}\n`;
+      const likedIcon = song.isLiked ? '👍 ' : song.isDisliked ? '👎 ' : '';
+      text += `[ ] ${i + 1}. ${likedIcon}${song.title || 'Untitled'}\n`;
       if (song.url) text += `    URL: ${song.url}\n`;
       if (song.duration) text += `    Duration: ${song.duration}\n`;
+      if (song.isLiked) text += `    ⭐ LIKED\n`;
+      if (song.isDisliked) text += `    ⛔ DISLIKED\n`;
       if (song.tags && song.tags.length > 0) text += `    Tags: ${song.tags.join(', ')}\n`;
       text += '\n';
     });
@@ -492,15 +495,23 @@ function exportSongChecklist() {
     text += '═══════════════════════════════════════════════════════════\n\n';
     
     songs.forEach((song, i) => {
-      text += `[ ] ${i + 1}. ${song.title || 'Untitled'}\n`;
+      const likedIcon = song.isLiked ? '👍 ' : song.isDisliked ? '👎 ' : '';
+      text += `[ ] ${i + 1}. ${likedIcon}${song.title || 'Untitled'}\n`;
       if (song.url) text += `    URL: ${song.url}\n`;
       if (song.duration) text += `    Duration: ${song.duration}\n`;
+      if (song.isLiked) text += `    ⭐ LIKED\n`;
+      if (song.isDisliked) text += `    ⛔ DISLIKED\n`;
       if (song.tags && song.tags.length > 0) text += `    Tags: ${song.tags.join(', ')}\n`;
       text += '\n';
     });
     
     text += `Songs in this folder: ${songs.length}\n\n`;
   });
+  
+  // Count liked and disliked songs
+  const allSongsArray = [...rootSongs, ...allSongs];
+  const likedCount = allSongsArray.filter(song => song.isLiked).length;
+  const dislikedCount = allSongsArray.filter(song => song.isDisliked).length;
   
   // Summary at the end
   text += '═══════════════════════════════════════════════════════════\n';
@@ -509,7 +520,9 @@ function exportSongChecklist() {
   text += `Total Folders: ${sortedFolders.length}\n`;
   text += `Root Songs: ${rootSongs.length}\n`;
   text += `Songs in Folders: ${allSongs.length}\n`;
-  text += `TOTAL SONGS: ${rootSongs.length + allSongs.length}\n\n`;
+  text += `TOTAL SONGS: ${rootSongs.length + allSongs.length}\n`;
+  text += `Liked Songs: ${likedCount} 👍\n`;
+  text += `Disliked Songs: ${dislikedCount} 👎\n\n`;
   
   text += 'INSTRUCTIONS:\n';
   text += '1. Print this checklist or keep it open\n';
