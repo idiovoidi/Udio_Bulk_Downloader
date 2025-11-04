@@ -16,6 +16,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'ping') {
     // Simple ping to check if content script is loaded
     sendResponse({ status: 'ready' });
+  } else if (request.action === 'dumpStructure') {
+    // Diagnostic: dump the tree structure
+    dumpTreeStructure();
+    sendResponse({ status: 'dumped' });
   } else if (request.action === 'startMapping') {
     startFolderTreeMapping();
     sendResponse({ status: 'started' });
@@ -54,20 +58,27 @@ async function startFolderTreeMapping() {
     }
     
     console.log('Found folder tree panel');
+    console.log('Tree container HTML sample:', treeContainer.innerHTML.substring(0, 500));
     
     // Get all direct children (top-level folder items)
     const topLevelItems = Array.from(treeContainer.children);
     currentStructure.totalFolders = topLevelItems.length;
     
     console.log(`Found ${topLevelItems.length} top-level folders`);
+    console.log('First item HTML:', topLevelItems[0]?.outerHTML.substring(0, 300));
     
     // Process each top-level folder
     for (let i = 0; i < topLevelItems.length; i++) {
       const item = topLevelItems[i];
+      console.log(`\n=== Processing top-level folder ${i + 1}/${topLevelItems.length} ===`);
+      
       const folderData = await processFolderItem(item, [], treeContainer);
       
       if (folderData) {
+        console.log(`✓ Successfully processed: ${folderData.name}`);
         currentStructure.folders.push(folderData);
+      } else {
+        console.warn(`✗ Failed to process folder at index ${i}`);
       }
       
       currentStructure.mappedFolders = i + 1;
@@ -83,6 +94,7 @@ async function startFolderTreeMapping() {
     }
     
     console.log('Mapping complete!', currentStructure);
+    console.log('Full structure:', JSON.stringify(currentStructure, null, 2));
     
     // Send completion message
     chrome.runtime.sendMessage({
@@ -119,6 +131,8 @@ async function processFolderItem(item, parentPath, treeContainer) {
   const hasExpandButton = expandButton !== null;
   const isExpanded = item.getAttribute('aria-expanded') === 'true';
   
+  console.log(`Folder: ${folderName}, hasExpandButton: ${hasExpandButton}, isExpanded: ${isExpanded}`);
+  
   const folderData = {
     name: folderName,
     path: currentPath,
@@ -134,48 +148,37 @@ async function processFolderItem(item, parentPath, treeContainer) {
     if (!isExpanded) {
       console.log(`Expanding folder: ${folderName}`);
       expandButton.click();
-      await sleep(600); // Wait for expansion
-    }
-    
-    // After expanding, find child items
-    // Children appear as siblings immediately after this item in the DOM
-    const allItems = Array.from(treeContainer.children);
-    const currentIndex = allItems.indexOf(item);
-    
-    // Get the padding of current item to compare with children
-    const currentGroup = item.querySelector('.group');
-    const currentPadding = currentGroup ? parseInt(window.getComputedStyle(currentGroup).paddingLeft) : 0;
-    
-    console.log(`Current padding: ${currentPadding}px`);
-    
-    // Find children (they will have more padding)
-    const children = [];
-    for (let i = currentIndex + 1; i < allItems.length; i++) {
-      const nextItem = allItems[i];
-      const nextGroup = nextItem.querySelector('.group');
       
-      if (!nextGroup) continue;
+      // Wait for expansion animation and DOM update
+      await sleep(1200);
       
-      const nextPadding = parseInt(window.getComputedStyle(nextGroup).paddingLeft);
+      // Verify it actually expanded
+      const expandedCheck = item.getAttribute('aria-expanded');
+      console.log(`After click, aria-expanded: ${expandedCheck}`);
       
-      // If padding is greater, it's a child
-      if (nextPadding > currentPadding) {
-        // Only add direct children (padding is exactly one level deeper)
-        // Typically each level adds 16-24px
-        if (nextPadding - currentPadding < 30) {
-          children.push(nextItem);
-        }
-      } else {
-        // No longer a child, stop looking
-        break;
+      if (expandedCheck !== 'true') {
+        console.warn(`Folder didn't expand properly, waiting longer...`);
+        await sleep(800);
       }
     }
+    
+    // Extra wait to ensure children are rendered
+    await sleep(300);
+    
+    // Children are NESTED inside the parent item, not as siblings!
+    // Look for all [role="button"] elements inside this item
+    const nestedButtons = item.querySelectorAll('[role="button"]');
+    
+    console.log(`Found ${nestedButtons.length} nested buttons (including parent)`);
+    
+    // Filter out the parent itself - children are the rest
+    const children = Array.from(nestedButtons).filter(btn => btn !== item);
     
     console.log(`Found ${children.length} direct children for ${folderName}`);
     
     // Process each child recursively
     for (const child of children) {
-      const childData = await processFolderItem(child, currentPath, treeContainer);
+      const childData = await processFolderItem(child, currentPath, item);
       if (childData) {
         folderData.subfolders.push(childData);
         folderData.songCount += childData.songCount;
@@ -261,6 +264,87 @@ async function countSongsInView() {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Diagnostic function to dump tree structure
+async function dumpTreeStructure() {
+  console.log('\n========== TREE STRUCTURE DIAGNOSTIC ==========\n');
+  
+  const treeContainer = document.querySelector('[role="tree"][aria-label="Folder structure"]');
+  
+  if (!treeContainer) {
+    console.error('❌ Folder tree panel not found!');
+    return;
+  }
+  
+  console.log('✓ Found folder tree panel');
+  console.log(`Total direct children: ${treeContainer.children.length}\n`);
+  
+  // Find first folder with expand button
+  const expandableFolder = Array.from(treeContainer.children).find(item => {
+    return item.querySelector('button[aria-label="Expand"]') !== null;
+  });
+  
+  if (!expandableFolder) {
+    console.log('No expandable folders found');
+    return;
+  }
+  
+  const folderName = expandableFolder.querySelector('button[title]')?.getAttribute('title');
+  console.log(`Found expandable folder: "${folderName}"`);
+  console.log(`Current aria-expanded: ${expandableFolder.getAttribute('aria-expanded')}`);
+  
+  const itemsBefore = treeContainer.children.length;
+  console.log(`Items before expansion: ${itemsBefore}`);
+  
+  // Expand it
+  const expandButton = expandableFolder.querySelector('button[aria-label="Expand"]');
+  console.log('\nClicking expand button...');
+  expandButton.click();
+  
+  await sleep(1500);
+  
+  const itemsAfter = treeContainer.children.length;
+  console.log(`Items after expansion: ${itemsAfter}`);
+  console.log(`Items added: ${itemsAfter - itemsBefore}`);
+  console.log(`New aria-expanded: ${expandableFolder.getAttribute('aria-expanded')}`);
+  
+  // Check if children are nested inside the item
+  console.log('\n--- Checking for nested children ---');
+  const nestedChildren = expandableFolder.querySelectorAll('[role="button"]');
+  console.log(`Found ${nestedChildren.length} nested button elements (including parent)`);
+  
+  if (nestedChildren.length > 1) {
+    console.log('✓ Children are NESTED inside the parent item!');
+    console.log('First few nested children:');
+    Array.from(nestedChildren).slice(1, 4).forEach((child, i) => {
+      const name = child.querySelector('button[title]')?.getAttribute('title') || 'unnamed';
+      console.log(`  ${i + 1}. ${name}`);
+    });
+  }
+  
+  // Dump all items with their padding
+  console.log('\n--- All items in tree (with padding) ---');
+  const allItems = Array.from(treeContainer.children);
+  
+  allItems.forEach((item, index) => {
+    const name = item.querySelector('button[title]')?.getAttribute('title') || 'unnamed';
+    const group = item.querySelector('.group');
+    const padding = group ? parseInt(window.getComputedStyle(group).paddingLeft) : 0;
+    const hasExpand = item.querySelector('button[aria-label="Expand"]') !== null;
+    const isExpanded = item.getAttribute('aria-expanded') === 'true';
+    
+    console.log(`${index}: "${name}" | padding=${padding}px | expand=${hasExpand} | expanded=${isExpanded}`);
+  });
+  
+  console.log('\n--- First 3 items HTML ---');
+  allItems.slice(0, 3).forEach((item, index) => {
+    const name = item.querySelector('button[title]')?.getAttribute('title') || 'unnamed';
+    console.log(`\nItem ${index} (${name}):`);
+    console.log(item.outerHTML.substring(0, 400) + '...');
+  });
+  
+  console.log('\n========== END DIAGNOSTIC ==========\n');
 }
 
 // Log when script loads

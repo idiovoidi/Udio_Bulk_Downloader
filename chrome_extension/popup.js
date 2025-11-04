@@ -266,8 +266,24 @@ function formatFolderHierarchy(folder, depth, prefix) {
   return text;
 }
 
+// Dump tree structure for debugging
+async function dumpTreeStructure() {
+  try {
+    updateStatus('Dumping tree structure... Check console!', 'info');
+    
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.tabs.sendMessage(tab.id, { action: 'dumpStructure' });
+    
+    updateStatus('✓ Tree structure dumped to console (F12)', 'success');
+  } catch (error) {
+    updateStatus(`Error: ${error.message}`, 'error');
+  }
+}
+
 // Event listeners
+const dumpButton = document.getElementById('dumpStructure');
 mapButton.addEventListener('click', mapLibrary);
+dumpButton.addEventListener('click', dumpTreeStructure);
 exportJsonButton.addEventListener('click', exportAsJson);
 exportTextButton.addEventListener('click', exportAsText);
 
