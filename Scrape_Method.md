@@ -47,4 +47,4 @@ Puppeteer (Node.js)	Medium	Excellent	Cross-platform automation	Switch from Pytho
 Prioritize Selenium for your existing scripts, as it integrates directly with your batch files and verification steps.​
 
 Best Practices
-Run attachments after confirming the session via http://localhost:9222/json to ensure tabs are loaded. Use headless=False initially for debugging, then switch for production. For Udio, respect rate limits and terms to avoid bans—scrape sparingly and add delays (e.g., time.sleep(2)). Backup your profile data before testing to prevent corruption.
+Run attachments after confirming the session via http://localhost:9222/json to ensure tabs are loaded. Use headless=False initially for debugging, then switch for production. 
