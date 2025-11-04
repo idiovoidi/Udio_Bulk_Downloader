@@ -73,8 +73,8 @@ function displayResults(data) {
 // Map library structure
 async function mapLibrary() {
   try {
-    updateStatus('Mapping library...', 'info');
-    updateProgress(10, 'Connecting to page...');
+    updateStatus('Starting mapping... Make sure folder tree is open!', 'info');
+    updateProgress(5, 'Connecting to page...');
     mapButton.disabled = true;
     
     // Get active tab
@@ -87,28 +87,87 @@ async function mapLibrary() {
       return;
     }
     
-    updateProgress(30, 'Analyzing page structure...');
+    updateProgress(10, 'Starting folder tree mapping...');
     
-    // Send message to content script to analyze the page
-    const response = await chrome.tabs.sendMessage(tab.id, { action: 'mapLibrary' });
-    
-    if (response.success) {
-      updateProgress(100, 'Complete!');
-      updateStatus(`Found ${response.data.folders.length} folders and ${response.data.songs.length} songs`, 'success');
-      displayResults(response.data);
+    // Send message to content script to start mapping
+    try {
+      const response = await chrome.tabs.sendMessage(tab.id, { action: 'startMapping' });
+      
+      if (response && response.status === 'started') {
+        updateStatus('Mapping in progress...', 'info');
+        // Start polling for progress
+        startProgressPolling(tab.id);
+      } else {
+        updateStatus('Failed to start mapping', 'error');
+        hideProgress();
+        mapButton.disabled = false;
+      }
+    } catch (msgError) {
+      // Content script not loaded
+      if (msgError.message.includes('Receiving end does not exist')) {
+        updateStatus('⚠️ Please REFRESH the Udio page (F5) and try again', 'error');
+        console.log('Content script not loaded. User needs to refresh the page.');
+      } else {
+        updateStatus(`Error: ${msgError.message}`, 'error');
+      }
       hideProgress();
-    } else {
-      updateStatus(response.error || 'Failed to map library', 'error');
-      hideProgress();
+      mapButton.disabled = false;
     }
     
   } catch (error) {
     console.error('Error mapping library:', error);
     updateStatus(`Error: ${error.message}`, 'error');
     hideProgress();
-  } finally {
     mapButton.disabled = false;
   }
+}
+
+// Poll for progress updates
+function startProgressPolling(tabId) {
+  const pollInterval = setInterval(() => {
+    chrome.tabs.sendMessage(tabId, { action: 'getProgress' }, (response) => {
+      if (chrome.runtime.lastError) {
+        clearInterval(pollInterval);
+        updateStatus('Connection lost', 'error');
+        hideProgress();
+        mapButton.disabled = false;
+        return;
+      }
+      
+      if (response) {
+        if (response.inProgress) {
+          const structure = response.structure;
+          const percent = structure.totalFolders > 0 
+            ? Math.round((structure.mappedFolders / structure.totalFolders) * 100) 
+            : 10;
+          
+          updateProgress(percent, `Mapping: ${structure.mappedFolders}/${structure.totalFolders} folders`);
+          updateStatus(`Found ${structure.totalSongs} songs so far...`, 'info');
+        } else {
+          // Mapping complete
+          clearInterval(pollInterval);
+          const structure = response.structure;
+          updateProgress(100, 'Complete!');
+          updateStatus(`Mapping complete! ${structure.totalFolders} folders, ${structure.totalSongs} songs`, 'success');
+          
+          // Format data for display
+          const displayData = {
+            folders: structure.folders,
+            rootFolders: structure.folders,
+            totalFolders: structure.totalFolders,
+            totalSongs: structure.totalSongs,
+            pageType: 'library',
+            pageUrl: 'udio.com/library',
+            timestamp: new Date().toISOString()
+          };
+          
+          displayResults(displayData);
+          hideProgress();
+          mapButton.disabled = false;
+        }
+      }
+    });
+  }, 500);
 }
 
 // Export as JSON
@@ -212,10 +271,37 @@ mapButton.addEventListener('click', mapLibrary);
 exportJsonButton.addEventListener('click', exportAsJson);
 exportTextButton.addEventListener('click', exportAsText);
 
-// Check if we're on Udio.com
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+// Listen for messages from background/content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'mappingComplete') {
+    console.log('Mapping complete!', message.structure);
+  } else if (message.action === 'mappingError') {
+    updateStatus(`Error: ${message.error}`, 'error');
+    hideProgress();
+    mapButton.disabled = false;
+  } else if (message.action === 'progressUpdate') {
+    console.log('Progress update:', message.progress);
+  }
+});
+
+// Check if we're on Udio.com and if content script is loaded
+chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
   if (tabs[0] && !tabs[0].url.includes('udio.com')) {
     updateStatus('Please navigate to Udio.com', 'warning');
     mapButton.disabled = true;
+    return;
+  }
+  
+  // Check if content script is loaded
+  if (tabs[0]) {
+    try {
+      const response = await chrome.tabs.sendMessage(tabs[0].id, { action: 'ping' });
+      if (response) {
+        updateStatus('Ready to map! Open folder tree panel first.', 'info');
+      }
+    } catch (error) {
+      updateStatus('⚠️ Please REFRESH the page (F5) to load the extension', 'warning');
+      console.log('Content script not detected. Page needs refresh.');
+    }
   }
 });
