@@ -1,0 +1,23 @@
+# Core dependencies for Udio Downloader
+requests>=2.32.5
+selenium>=4.38.0
+click>=8.3.0
+
+# Web scraping and browser automation
+beautifulsoup4>=4.14.2
+webdriver-manager>=4.0.2
+
+# Progress tracking and logging
+tqdm>=4.67.1
+
+# Security and credential management
+keyring>=25.6.0
+
+# Data validation and serialization
+pydantic>=2.12.3
+
+# Development and testing dependencies (optional)
+pytest>=8.4.2
+pytest-asyncio>=1.2.0
+black>=25.9.0
+flake8>=7.3.0
