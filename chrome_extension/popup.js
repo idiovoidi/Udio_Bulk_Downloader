@@ -5,6 +5,7 @@ let libraryData = null;
 // DOM elements
 const statusDiv = document.getElementById('status');
 const mapButton = document.getElementById('mapLibrary');
+const exportChecklistButton = document.getElementById('exportChecklist');
 const downloadButton = document.getElementById('downloadAll');
 const exportJsonButton = document.getElementById('exportJson');
 const exportTextButton = document.getElementById('exportText');
@@ -37,11 +38,15 @@ function displayResults(data) {
   libraryData = data;
   
   const totalFolders = data.totalFolders || data.folders?.length || data.rootFolders?.length || 0;
+  const rootSongCount = data.rootSongs?.length || 0;
   const totalSongs = data.totalSongs || data.songs?.length || 0;
   
   let html = '<ul>';
   html += `<li><strong>Total Folders:</strong> ${totalFolders}</li>`;
   html += `<li><strong>Total Songs:</strong> ${totalSongs}</li>`;
+  if (rootSongCount > 0) {
+    html += `<li><strong>Root Songs:</strong> ${rootSongCount} (not in folders)</li>`;
+  }
   html += `<li><strong>Page Type:</strong> ${data.pageType}</li>`;
   html += '</ul>';
   
@@ -165,6 +170,7 @@ function startProgressPolling(tabId) {
           displayResults(displayData);
           hideProgress();
           mapButton.disabled = false;
+          exportChecklistButton.disabled = false; // Enable checklist button
           downloadButton.disabled = false; // Enable download button
         }
       }
@@ -275,7 +281,7 @@ async function downloadAllSongs() {
     return;
   }
   
-  updateStatus('Starting download...', 'info');
+  updateStatus('Preparing download...', 'info');
   downloadButton.disabled = true;
   
   try {
@@ -311,44 +317,165 @@ async function downloadAllSongs() {
       return;
     }
     
-    // Download each song
-    let downloaded = 0;
-    for (const song of allSongs) {
-      if (song.downloadUrl || song.url) {
-        const folderPath = song.folderPath.join('/');
-        const filename = `Udio Library/${folderPath}/${sanitizeFilename(song.title || song.id || 'unknown')}.mp3`;
-        
-        try {
-          await chrome.downloads.download({
-            url: song.downloadUrl || song.url,
-            filename: filename,
-            saveAs: false
-          });
-          
-          downloaded++;
-          updateProgress(
-            Math.round((downloaded / allSongs.length) * 100),
-            `Downloading: ${downloaded}/${allSongs.length}`
-          );
-          
-          // Small delay to avoid overwhelming the browser
-          await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (error) {
-          console.error(`Failed to download ${song.title}:`, error);
-        }
-      }
-    }
+    // Create download list file
+    const downloadList = allSongs.map((song, i) => {
+      const folderPath = song.folderPath.join('/');
+      return `${i + 1}. ${song.title}\n   Folder: ${folderPath}\n   URL: ${song.url}\n`;
+    }).join('\n');
     
-    hideProgress();
-    updateStatus(`✓ Downloaded ${downloaded} songs!`, 'success');
+    // Export download list
+    const blob = new Blob([downloadList], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    await chrome.downloads.download({
+      url: url,
+      filename: 'Udio_Download_List.txt',
+      saveAs: false
+    });
+    
+    updateStatus(
+      `Found ${allSongs.length} songs. Download list saved. ` +
+      `Now you need to manually download each song and organize them. ` +
+      `See DOWNLOAD_INSTRUCTIONS.md for details.`,
+      'warning'
+    );
+    
+    // Note: Automatic downloading requires navigating to each song page
+    // and clicking download buttons, which is complex and may violate ToS
+    // For now, we provide the list and user can download manually
     
   } catch (error) {
     console.error('Download error:', error);
     updateStatus(`Error: ${error.message}`, 'error');
-    hideProgress();
   } finally {
     downloadButton.disabled = false;
   }
+}
+
+// Export comprehensive song checklist
+function exportSongChecklist() {
+  if (!libraryData) return;
+  
+  let text = '═══════════════════════════════════════════════════════════\n';
+  text += '           UDIO LIBRARY - COMPLETE SONG CHECKLIST\n';
+  text += '═══════════════════════════════════════════════════════════\n\n';
+  text += `Generated: ${new Date().toLocaleString()}\n`;
+  text += `Total Folders: ${libraryData.totalFolders || 0}\n`;
+  text += `Total Songs: ${libraryData.totalSongs || 0}\n\n`;
+  
+  // Collect all songs with their paths
+  const allSongs = [];
+  let rootSongs = [];
+  
+  function collectSongs(folders, path = []) {
+    folders.forEach(folder => {
+      const folderPath = [...path, folder.name];
+      
+      if (folder.songs && folder.songs.length > 0) {
+        folder.songs.forEach(song => {
+          allSongs.push({
+            ...song,
+            folderPath: folderPath,
+            pathString: folderPath.join(' > ')
+          });
+        });
+      }
+      
+      if (folder.subfolders && folder.subfolders.length > 0) {
+        collectSongs(folder.subfolders, folderPath);
+      }
+    });
+  }
+  
+  // Check for root-level songs (songs not in any folder)
+  if (libraryData.songs && libraryData.songs.length > 0) {
+    rootSongs = libraryData.songs;
+  }
+  
+  collectSongs(libraryData.folders || libraryData.rootFolders || []);
+  
+  // Add root songs section if any exist
+  if (rootSongs.length > 0) {
+    text += '═══════════════════════════════════════════════════════════\n';
+    text += '                    ROOT DIRECTORY\n';
+    text += '                  (Songs not in folders)\n';
+    text += '═══════════════════════════════════════════════════════════\n\n';
+    
+    rootSongs.forEach((song, i) => {
+      text += `[ ] ${i + 1}. ${song.title || 'Untitled'}\n`;
+      if (song.url) text += `    URL: ${song.url}\n`;
+      if (song.duration) text += `    Duration: ${song.duration}\n`;
+      if (song.tags && song.tags.length > 0) text += `    Tags: ${song.tags.join(', ')}\n`;
+      text += '\n';
+    });
+    
+    text += `Root Songs: ${rootSongs.length}\n\n`;
+  }
+  
+  // Group songs by folder
+  const songsByFolder = {};
+  allSongs.forEach(song => {
+    const path = song.pathString;
+    if (!songsByFolder[path]) {
+      songsByFolder[path] = [];
+    }
+    songsByFolder[path].push(song);
+  });
+  
+  // Sort folders alphabetically
+  const sortedFolders = Object.keys(songsByFolder).sort();
+  
+  // Output each folder with its songs
+  sortedFolders.forEach(folderPath => {
+    const songs = songsByFolder[folderPath];
+    
+    text += '═══════════════════════════════════════════════════════════\n';
+    text += `📁 ${folderPath}\n`;
+    text += '═══════════════════════════════════════════════════════════\n\n';
+    
+    songs.forEach((song, i) => {
+      text += `[ ] ${i + 1}. ${song.title || 'Untitled'}\n`;
+      if (song.url) text += `    URL: ${song.url}\n`;
+      if (song.duration) text += `    Duration: ${song.duration}\n`;
+      if (song.tags && song.tags.length > 0) text += `    Tags: ${song.tags.join(', ')}\n`;
+      text += '\n';
+    });
+    
+    text += `Songs in this folder: ${songs.length}\n\n`;
+  });
+  
+  // Summary at the end
+  text += '═══════════════════════════════════════════════════════════\n';
+  text += '                         SUMMARY\n';
+  text += '═══════════════════════════════════════════════════════════\n\n';
+  text += `Total Folders: ${sortedFolders.length}\n`;
+  text += `Root Songs: ${rootSongs.length}\n`;
+  text += `Songs in Folders: ${allSongs.length}\n`;
+  text += `TOTAL SONGS: ${rootSongs.length + allSongs.length}\n\n`;
+  
+  text += 'INSTRUCTIONS:\n';
+  text += '1. Print this checklist or keep it open\n';
+  text += '2. Mark [ ] with [X] as you download each song\n';
+  text += '3. Use the URLs to navigate to each song\n';
+  text += '4. Click Download → MP3 for each song\n';
+  text += '5. Organize downloaded files into matching folder structure\n\n';
+  
+  text += 'TIP: You can search this file (Ctrl+F) to find specific songs!\n';
+  
+  // Download the checklist
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const filename = `udio_song_checklist_${timestamp}.txt`;
+  
+  chrome.downloads.download({
+    url: url,
+    filename: filename,
+    saveAs: true
+  });
+  
+  updateStatus(`✓ Checklist exported! ${rootSongs.length + allSongs.length} songs total`, 'success');
 }
 
 // Sanitize filename for downloads
@@ -378,6 +505,7 @@ async function dumpTreeStructure() {
 const dumpButton = document.getElementById('dumpStructure');
 mapButton.addEventListener('click', mapLibrary);
 dumpButton.addEventListener('click', dumpTreeStructure);
+exportChecklistButton.addEventListener('click', exportSongChecklist);
 downloadButton.addEventListener('click', downloadAllSongs);
 exportJsonButton.addEventListener('click', exportAsJson);
 exportTextButton.addEventListener('click', exportAsText);

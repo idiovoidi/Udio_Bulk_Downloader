@@ -4,6 +4,7 @@ console.log('Udio Folder Mapper v3 loaded');
 let mappingInProgress = false;
 let currentStructure = {
   folders: [],
+  rootSongs: [],
   totalFolders: 0,
   mappedFolders: 0,
   totalSongs: 0
@@ -46,6 +47,7 @@ async function startFolderTreeMapping() {
   mappingInProgress = true;
   currentStructure = {
     folders: [],
+    rootSongs: [],
     totalFolders: 0,
     mappedFolders: 0,
     totalSongs: 0
@@ -70,6 +72,17 @@ async function startFolderTreeMapping() {
     
     console.log(`Found ${topLevelItems.length} top-level folders`);
     console.log('First item HTML:', topLevelItems[0]?.outerHTML.substring(0, 300));
+    
+    // First, check for root-level songs (songs not in any folder)
+    console.log('\n=== Checking for root-level songs ===');
+    
+    // Click on "My Songs" or root view to see if there are songs not in folders
+    const rootSongs = await extractSongsFromView();
+    if (rootSongs.length > 0) {
+      console.log(`Found ${rootSongs.length} songs in root directory`);
+      currentStructure.rootSongs = rootSongs;
+      currentStructure.totalSongs += rootSongs.length;
+    }
     
     // Process each top-level folder
     for (let i = 0; i < topLevelItems.length; i++) {
