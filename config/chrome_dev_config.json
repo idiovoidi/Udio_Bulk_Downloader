@@ -1,0 +1,71 @@
+{
+  "system": {
+    "platform": "Windows",
+    "platform_version": "10.0.26200",
+    "architecture": "64bit",
+    "user": "Mitchell Local",
+    "timestamp": "2025-11-04T22:58:20.706943"
+  },
+  "chrome_installations": [
+    {
+      "path": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe",
+      "type": "Chrome Dev",
+      "exists": true,
+      "size": 3462808,
+      "version": "Opening in existing browser session."
+    }
+  ],
+  "chrome_profiles": [
+    {
+      "name": "Default",
+      "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Default",
+      "exists": true,
+      "size": 2465945465
+    },
+    {
+      "name": "Profile",
+      "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Profile",
+      "exists": true,
+      "size": 16648846
+    },
+    {
+      "name": "Profile 1",
+      "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Profile 1",
+      "exists": true,
+      "size": 579365157
+    },
+    {
+      "name": "Profile 2",
+      "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Profile 2",
+      "exists": true,
+      "size": 1563441582
+    }
+  ],
+  "registry_info": {},
+  "debugging_capabilities": {
+    "port_9222_available": true,
+    "selenium_available": {
+      "available": true,
+      "version": "4.38.0"
+    },
+    "webdriver_manager_available": {
+      "available": true,
+      "version": "4.0.2"
+    }
+  },
+  "recommended_setup": {
+    "preferred_chrome_path": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe",
+    "preferred_profile": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Default",
+    "startup_command": "\"C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe\" --remote-debugging-port=9222 --restore-last-session --user-data-dir=\"C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\"",
+    "notes": []
+  },
+  "udio_config": {
+    "test_account": "idiovoidi@gmail.com",
+    "target_urls": [
+      "https://www.udio.com/library",
+      "https://www.udio.com/my-creations",
+      "https://www.udio.com/create"
+    ],
+    "debug_port": 9222
+  }
+}
