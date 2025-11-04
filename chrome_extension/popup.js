@@ -1,6 +1,7 @@
 // Popup script for Udio Library Mapper extension
 
 let libraryData = null;
+let pollingInterval = null;
 
 // DOM elements
 const statusDiv = document.getElementById('status');
@@ -14,6 +15,22 @@ const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
 const resultsDiv = document.getElementById('results');
 const resultsContent = document.getElementById('resultsContent');
+
+// Save mapping state to storage
+async function saveMappingState(state) {
+  await chrome.storage.local.set({ mappingState: state });
+}
+
+// Load mapping state from storage
+async function loadMappingState() {
+  const result = await chrome.storage.local.get(['mappingState']);
+  return result.mappingState || null;
+}
+
+// Clear mapping state
+async function clearMappingState() {
+  await chrome.storage.local.remove('mappingState');
+}
 
 // Update status message
 function updateStatus(message, type = 'info') {
@@ -130,13 +147,20 @@ async function mapLibrary() {
 
 // Poll for progress updates
 function startProgressPolling(tabId) {
-  const pollInterval = setInterval(() => {
-    chrome.tabs.sendMessage(tabId, { action: 'getProgress' }, (response) => {
+  // Clear any existing polling interval
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
+  
+  pollingInterval = setInterval(async () => {
+    chrome.tabs.sendMessage(tabId, { action: 'getProgress' }, async (response) => {
       if (chrome.runtime.lastError) {
-        clearInterval(pollInterval);
+        clearInterval(pollingInterval);
+        pollingInterval = null;
         updateStatus('Connection lost', 'error');
         hideProgress();
         mapButton.disabled = false;
+        await clearMappingState();
         return;
       }
       
@@ -149,9 +173,20 @@ function startProgressPolling(tabId) {
           
           updateProgress(percent, `Mapping: ${structure.mappedFolders}/${structure.totalFolders} folders`);
           updateStatus(`Found ${structure.totalSongs} songs so far...`, 'info');
+          
+          // Save state so popup can restore it
+          await saveMappingState({
+            inProgress: true,
+            percent: percent,
+            mappedFolders: structure.mappedFolders,
+            totalFolders: structure.totalFolders,
+            totalSongs: structure.totalSongs,
+            tabId: tabId
+          });
         } else {
           // Mapping complete
-          clearInterval(pollInterval);
+          clearInterval(pollingInterval);
+          pollingInterval = null;
           const structure = response.structure;
           updateProgress(100, 'Complete!');
           updateStatus(`Mapping complete! ${structure.totalFolders} folders, ${structure.totalSongs} songs`, 'success');
@@ -172,6 +207,9 @@ function startProgressPolling(tabId) {
           mapButton.disabled = false;
           exportChecklistButton.disabled = false; // Enable checklist button
           downloadButton.disabled = false; // Enable download button
+          
+          // Clear state after completion
+          await clearMappingState();
         }
       }
     });
@@ -501,14 +539,92 @@ async function dumpTreeStructure() {
   }
 }
 
+// View logs
+async function viewLogs() {
+  const logsView = document.getElementById('logsView');
+  const logsContent = document.getElementById('logsContent');
+  const logStats = document.getElementById('logStats');
+  
+  if (logsView.style.display === 'none') {
+    // Show logs
+    const stats = await logger.getStats();
+    const recentLogs = logger.getRecentLogs(100);
+    
+    logStats.textContent = `(${stats.totalLogs} total, showing last 100)`;
+    
+    logsContent.textContent = recentLogs.map(log => {
+      const time = new Date(log.timestamp).toLocaleTimeString();
+      return `[${time}] [${log.level.toUpperCase()}] ${log.message}${log.data ? '\n  ' + JSON.stringify(log.data) : ''}`;
+    }).join('\n\n');
+    
+    logsView.style.display = 'block';
+    document.getElementById('viewLogs').textContent = '❌ Hide Logs';
+  } else {
+    // Hide logs
+    logsView.style.display = 'none';
+    document.getElementById('viewLogs').textContent = '📋 View Debug Logs';
+  }
+}
+
+// Export logs
+async function exportLogs() {
+  const logsText = await logger.exportLogs();
+  const stats = await logger.getStats();
+  
+  const header = `UDIO LIBRARY MAPPER - DEBUG LOGS\n`;
+  const separator = '='.repeat(60) + '\n';
+  const statsText = `Total Logs: ${stats.totalLogs}\n` +
+                   `Session ID: ${stats.sessionId}\n` +
+                   `Oldest: ${stats.oldestLog}\n` +
+                   `Newest: ${stats.newestLog}\n` +
+                   `By Level: ${JSON.stringify(stats.byLevel, null, 2)}\n\n`;
+  
+  const fullText = header + separator + statsText + separator + '\n' + logsText;
+  
+  const blob = new Blob([fullText], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const filename = `udio_mapper_logs_${timestamp}.txt`;
+  
+  chrome.downloads.download({
+    url: url,
+    filename: filename,
+    saveAs: true
+  });
+  
+  updateStatus('Logs exported successfully', 'success');
+}
+
+// Clear logs
+async function clearLogs() {
+  if (confirm('Are you sure you want to clear all logs?')) {
+    await logger.clearLogs();
+    updateStatus('Logs cleared', 'success');
+    
+    // Hide logs view if open
+    const logsView = document.getElementById('logsView');
+    if (logsView.style.display !== 'none') {
+      viewLogs(); // Toggle to hide
+    }
+  }
+}
+
 // Event listeners
 const dumpButton = document.getElementById('dumpStructure');
+const viewLogsButton = document.getElementById('viewLogs');
+const exportLogsButton = document.getElementById('exportLogs');
+const clearLogsButton = document.getElementById('clearLogs');
+
 mapButton.addEventListener('click', mapLibrary);
 dumpButton.addEventListener('click', dumpTreeStructure);
 exportChecklistButton.addEventListener('click', exportSongChecklist);
 downloadButton.addEventListener('click', downloadAllSongs);
 exportJsonButton.addEventListener('click', exportAsJson);
 exportTextButton.addEventListener('click', exportAsText);
+viewLogsButton.addEventListener('click', viewLogs);
+exportLogsButton.addEventListener('click', exportLogs);
+clearLogsButton.addEventListener('click', clearLogs);
 
 // Listen for messages from background/content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -523,6 +639,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Restore state when popup opens
+async function restoreState() {
+  const state = await loadMappingState();
+  
+  if (state && state.inProgress) {
+    // Mapping is in progress, restore UI
+    updateStatus(`Mapping in progress... (${state.mappedFolders}/${state.totalFolders} folders)`, 'info');
+    updateProgress(state.percent, `Mapping: ${state.mappedFolders}/${state.totalFolders} folders`);
+    mapButton.disabled = true;
+    
+    // Resume polling
+    if (state.tabId) {
+      startProgressPolling(state.tabId);
+    }
+  }
+}
+
 // Check if we're on Udio.com and if content script is loaded
 chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
   if (tabs[0] && !tabs[0].url.includes('udio.com')) {
@@ -536,7 +669,16 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     try {
       const response = await chrome.tabs.sendMessage(tabs[0].id, { action: 'ping' });
       if (response) {
-        updateStatus('Ready to map! Open folder tree panel first.', 'info');
+        // Check for ongoing mapping state
+        const state = await loadMappingState();
+        if (state && state.inProgress) {
+          updateStatus(`Mapping in progress... (${state.mappedFolders}/${state.totalFolders} folders)`, 'info');
+          updateProgress(state.percent, `Mapping: ${state.mappedFolders}/${state.totalFolders} folders`);
+          mapButton.disabled = true;
+          startProgressPolling(tabs[0].id);
+        } else {
+          updateStatus('Ready to map! Open folder tree panel first.', 'info');
+        }
       }
     } catch (error) {
       updateStatus('⚠️ Please REFRESH the page (F5) to load the extension', 'warning');

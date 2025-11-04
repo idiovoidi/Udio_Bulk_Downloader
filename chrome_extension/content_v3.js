@@ -1,6 +1,9 @@
 // content_v3.js - Folder tree panel mapping (updated for actual structure)
 console.log('Udio Folder Mapper v3 loaded');
 
+// Initialize logger
+logger.info('Content script v3 loaded', { url: window.location.href });
+
 let mappingInProgress = false;
 let currentStructure = {
   folders: [],
@@ -9,6 +12,51 @@ let currentStructure = {
   mappedFolders: 0,
   totalSongs: 0
 };
+
+// Load state from storage on page load
+async function loadMappingState() {
+  try {
+    const result = await chrome.storage.local.get(['contentMappingState']);
+    if (result.contentMappingState) {
+      mappingInProgress = result.contentMappingState.inProgress || false;
+      currentStructure = result.contentMappingState.structure || currentStructure;
+      logger.info('Restored mapping state from storage', { 
+        inProgress: mappingInProgress,
+        mappedFolders: currentStructure.mappedFolders,
+        totalFolders: currentStructure.totalFolders
+      });
+    }
+  } catch (error) {
+    logger.error('Failed to load mapping state', { error: error.message });
+  }
+}
+
+// Save state to storage
+async function saveMappingState() {
+  try {
+    await chrome.storage.local.set({
+      contentMappingState: {
+        inProgress: mappingInProgress,
+        structure: currentStructure,
+        timestamp: Date.now()
+      }
+    });
+  } catch (error) {
+    logger.error('Failed to save mapping state', { error: error.message });
+  }
+}
+
+// Clear state from storage
+async function clearMappingState() {
+  try {
+    await chrome.storage.local.remove('contentMappingState');
+  } catch (error) {
+    logger.error('Failed to clear mapping state', { error: error.message });
+  }
+}
+
+// Load state on initialization
+loadMappingState();
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -40,6 +88,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 async function startFolderTreeMapping() {
   if (mappingInProgress) {
+    logger.warning('Mapping already in progress');
     console.log('Mapping already in progress');
     return;
   }
@@ -53,6 +102,7 @@ async function startFolderTreeMapping() {
     totalSongs: 0
   };
   
+  logger.info('Starting folder tree mapping');
   console.log('Starting folder tree mapping...');
   
   try {
@@ -60,9 +110,12 @@ async function startFolderTreeMapping() {
     const treeContainer = document.querySelector('[role="tree"][aria-label="Folder structure"]');
     
     if (!treeContainer) {
-      throw new Error('Folder tree panel not found. Please open the folder tree by clicking the folder icon in the top right.');
+      const error = 'Folder tree panel not found. Please open the folder tree by clicking the folder icon in the top right.';
+      logger.error(error);
+      throw new Error(error);
     }
     
+    logger.success('Found folder tree panel');
     console.log('Found folder tree panel');
     console.log('Tree container HTML sample:', treeContainer.innerHTML.substring(0, 500));
     
@@ -70,15 +123,18 @@ async function startFolderTreeMapping() {
     const topLevelItems = Array.from(treeContainer.children);
     currentStructure.totalFolders = topLevelItems.length;
     
+    logger.info(`Found ${topLevelItems.length} top-level folders`);
     console.log(`Found ${topLevelItems.length} top-level folders`);
     console.log('First item HTML:', topLevelItems[0]?.outerHTML.substring(0, 300));
     
     // First, check for root-level songs (songs not in any folder)
+    logger.info('Checking for root-level songs');
     console.log('\n=== Checking for root-level songs ===');
     
     // Click on "My Songs" or root view to see if there are songs not in folders
     const rootSongs = await extractSongsFromView();
     if (rootSongs.length > 0) {
+      logger.success(`Found ${rootSongs.length} songs in root directory`, { count: rootSongs.length });
       console.log(`Found ${rootSongs.length} songs in root directory`);
       currentStructure.rootSongs = rootSongs;
       currentStructure.totalSongs += rootSongs.length;
@@ -87,18 +143,28 @@ async function startFolderTreeMapping() {
     // Process each top-level folder
     for (let i = 0; i < topLevelItems.length; i++) {
       const item = topLevelItems[i];
+      logger.info(`Processing top-level folder ${i + 1}/${topLevelItems.length}`);
       console.log(`\n=== Processing top-level folder ${i + 1}/${topLevelItems.length} ===`);
       
       const folderData = await processFolderItem(item, [], treeContainer);
       
       if (folderData) {
+        logger.success(`Successfully processed: ${folderData.name}`, { 
+          name: folderData.name, 
+          songs: folderData.songs?.length || 0,
+          subfolders: folderData.subfolders?.length || 0
+        });
         console.log(`✓ Successfully processed: ${folderData.name}`);
         currentStructure.folders.push(folderData);
       } else {
+        logger.error(`Failed to process folder at index ${i}`);
         console.warn(`✗ Failed to process folder at index ${i}`);
       }
       
       currentStructure.mappedFolders = i + 1;
+      
+      // Save state after each folder
+      await saveMappingState();
       
       // Send progress update
       chrome.runtime.sendMessage({
@@ -110,6 +176,11 @@ async function startFolderTreeMapping() {
       });
     }
     
+    logger.success('Mapping complete!', {
+      totalFolders: currentStructure.totalFolders,
+      totalSongs: currentStructure.totalSongs,
+      rootSongs: currentStructure.rootSongs.length
+    });
     console.log('Mapping complete!', currentStructure);
     console.log('Full structure:', JSON.stringify(currentStructure, null, 2));
     
@@ -120,13 +191,20 @@ async function startFolderTreeMapping() {
     });
     
   } catch (error) {
+    logger.error('Mapping failed', { error: error.message, stack: error.stack });
     console.error('Mapping failed:', error);
+    
+    // Save state even on error so we don't lose progress
+    await saveMappingState();
+    
     chrome.runtime.sendMessage({
       action: 'mappingError',
       error: error.message
     });
   } finally {
     mappingInProgress = false;
+    // Clear state when done (success or failure)
+    await clearMappingState();
   }
 }
 

@@ -463,8 +463,25 @@ def main():
     if success:
         print("\n✅ Library structure mapping complete!")
         print(f"📁 Results saved to: {mapper.output_dir}")
+        print("\n" + "=" * 50)
+        print("NEXT STEPS")
+        print("=" * 50)
+        print("\n1. Review the analysis files in the output directory")
+        print("2. Use the identified selectors to build the download script")
+        print("3. Run the download command to fetch all songs:")
+        print("   python -m udio_downloader download --output ./downloads")
+        print("\n💡 TIP: Check the JSON file for detailed selector information")
+        print("💡 TIP: Use the Chrome extension for direct library access")
     else:
         print("\n❌ Library structure mapping failed")
+        print("\n" + "=" * 50)
+        print("TROUBLESHOOTING")
+        print("=" * 50)
+        print("\n1. Ensure Chrome is running with debugging enabled:")
+        print("   chrome.exe --remote-debugging-port=9222")
+        print("\n2. Make sure you're logged into Udio")
+        print("\n3. Navigate to: https://www.udio.com/library")
+        print("\n4. Wait for the page to fully load before running this script")
 
 
 if __name__ == "__main__":
