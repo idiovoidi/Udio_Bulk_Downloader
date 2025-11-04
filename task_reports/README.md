@@ -41,7 +41,7 @@ A Chrome extension to map and export your Udio library structure (folders and so
 ### Step 1: Log in to Udio
 
 1. Navigate to https://www.udio.com/library
-2. Log in with your account (idiovoidi@gmail.com)
+2. Log in with your Udio account
 3. Make sure your library page is fully loaded
 
 ### Step 2: Open the Folder Tree Panel

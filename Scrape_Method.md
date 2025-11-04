@@ -2,7 +2,7 @@ Easiest Method
 The easiest way to scrape a logged-in website like Udio.com is using Selenium to attach to an existing Chrome session via remote debugging, preserving your login cookies and state without re-authentication. This approach works seamlessly for dynamic JS sites by injecting code into active tabs.​
 
 Attaching to Active Sessions
-Yes, you can easily attach Python code to active Chrome sessions using the debugger address (localhost:9222 in your setup). Start Chrome Dev with --remote-debugging-port=9222, log in manually to https://www.udio.com/login with idiovoidi@gmail.com, then connect Selenium as shown in your verification code:
+Yes, you can easily attach Python code to active Chrome sessions using the debugger address (localhost:9222 in your setup). Start Chrome Dev with --remote-debugging-port=9222, log in manually to https://www.udio.com/login with your Udio account, then connect Selenium as shown in your verification code:
 
 python
 from selenium import webdriver

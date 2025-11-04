@@ -20,7 +20,7 @@ After extensive troubleshooting with Chrome debugging, we've created a **Chrome 
 
 ```
 1. Go to: https://www.udio.com/library
-2. Log in with: idiovoidi@gmail.com
+2. Log in with your Udio account
 3. Wait for your library to load
 ```
 

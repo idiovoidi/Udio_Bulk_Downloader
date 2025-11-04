@@ -29,7 +29,7 @@
 
 1. **Navigate to Udio**
    - Go to https://www.udio.com/library
-   - Log in with: `idiovoidi@gmail.com`
+   - Log in with your Udio account
    - Wait for your library to load
 
 2. **Open the Extension**
