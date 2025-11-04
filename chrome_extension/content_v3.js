@@ -314,34 +314,87 @@ async function extractSongsFromView() {
   await sleep(1500); // Increased delay to ensure songs are fully loaded
   
   const songs = [];
+  const seenUrls = new Set(); // Track unique songs
   
-  // Songs are in table rows with specific structure
-  // Look for rows that contain song links
-  const songRows = document.querySelectorAll('tr[class*="absolute"]');
+  // Find the scrollable container (usually the main content area)
+  const scrollContainer = document.querySelector('main') || 
+                         document.querySelector('[role="main"]') || 
+                         document.querySelector('.overflow-auto') ||
+                         document.documentElement;
   
-  console.log(`Found ${songRows.length} potential song rows`);
+  console.log('Starting scroll-based song extraction...');
   
-  if (songRows.length === 0) {
-    // Fallback: look for any links to /songs/
-    const songLinks = document.querySelectorAll('a[href*="/songs/"]');
-    console.log(`Fallback: Found ${songLinks.length} song links`);
+  let previousSongCount = 0;
+  let noNewSongsCount = 0;
+  const maxScrollAttempts = 50; // Prevent infinite loops
+  let scrollAttempts = 0;
+  
+  // Scroll and extract songs until no more new songs are found
+  while (scrollAttempts < maxScrollAttempts) {
+    // Extract currently visible songs
+    const songRows = document.querySelectorAll('tr[class*="absolute"]');
     
-    songLinks.forEach((link) => {
-      const container = link.closest('tr, div[class*="group"]');
-      if (container && !songs.find(s => s.url === link.href)) {
-        const song = extractSongFromElement(container);
-        if (song) songs.push(song);
+    if (songRows.length === 0) {
+      // Fallback: look for any links to /songs/
+      const songLinks = document.querySelectorAll('a[href*="/songs/"]');
+      
+      songLinks.forEach((link) => {
+        if (!seenUrls.has(link.href)) {
+          const container = link.closest('tr, div[class*="group"]');
+          if (container) {
+            const song = extractSongFromElement(container);
+            if (song && song.url) {
+              seenUrls.add(song.url);
+              songs.push(song);
+            }
+          }
+        }
+      });
+    } else {
+      // Extract from table rows
+      songRows.forEach((row) => {
+        const song = extractSongFromElement(row);
+        if (song && song.url && !seenUrls.has(song.url)) {
+          seenUrls.add(song.url);
+          songs.push(song);
+        }
+      });
+    }
+    
+    const currentSongCount = songs.length;
+    console.log(`Scroll attempt ${scrollAttempts + 1}: Found ${currentSongCount} songs (${currentSongCount - previousSongCount} new)`);
+    
+    // Check if we found new songs
+    if (currentSongCount === previousSongCount) {
+      noNewSongsCount++;
+      // If no new songs found after 3 scroll attempts, we're done
+      if (noNewSongsCount >= 3) {
+        console.log('No new songs found after 3 scroll attempts, extraction complete');
+        break;
       }
-    });
-  } else {
-    // Extract from table rows
-    songRows.forEach((row) => {
-      const song = extractSongFromElement(row);
-      if (song) songs.push(song);
-    });
+    } else {
+      noNewSongsCount = 0; // Reset counter if we found new songs
+    }
+    
+    previousSongCount = currentSongCount;
+    
+    // Scroll down to load more content
+    scrollContainer.scrollBy(0, 1000);
+    
+    // Wait for new content to load
+    await sleep(800);
+    
+    scrollAttempts++;
   }
   
-  console.log(`Extracted ${songs.length} songs with metadata`);
+  if (scrollAttempts >= maxScrollAttempts) {
+    console.warn('Reached maximum scroll attempts, some songs may be missing');
+  }
+  
+  // Scroll back to top
+  scrollContainer.scrollTo(0, 0);
+  
+  console.log(`Extracted ${songs.length} total songs with metadata`);
   return songs;
 }
 
