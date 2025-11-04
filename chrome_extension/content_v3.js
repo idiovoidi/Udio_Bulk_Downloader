@@ -355,7 +355,9 @@ function extractSongFromElement(element) {
       imageUrl: null,
       tags: [],
       plays: null,
-      likes: null
+      likes: null,
+      isLiked: false,
+      isDisliked: false
     };
     
     // Find title (in h4 tag)
@@ -410,6 +412,42 @@ function extractSongFromElement(element) {
         }
       }
     });
+    
+    // Check if song is liked (thumbs-up button is filled/active)
+    // Look for the thumbs-up button and check if it's in a liked state
+    const likeButton = element.querySelector('button:has(svg.lucide-thumbs-up)');
+    if (likeButton) {
+      // Check for filled state - liked songs have fill="white" or fill="currentColor"
+      const thumbsUpSvg = likeButton.querySelector('svg.lucide-thumbs-up');
+      if (thumbsUpSvg) {
+        const fillAttr = thumbsUpSvg.getAttribute('fill');
+        const strokeAttr = thumbsUpSvg.getAttribute('stroke');
+        
+        // Liked state: fill="white" or stroke="white", or aria-label="unlike"
+        const hasFill = fillAttr === 'white' || fillAttr === 'currentColor' || strokeAttr === 'white';
+        const isUnlikeButton = likeButton.getAttribute('aria-label') === 'unlike' || 
+                               likeButton.getAttribute('title')?.toLowerCase().includes('remove like');
+        
+        song.isLiked = hasFill || isUnlikeButton;
+      }
+    }
+    
+    // Check if song is disliked (thumbs-down button is filled/active)
+    const dislikeButton = element.querySelector('button:has(svg.lucide-thumbs-down)');
+    if (dislikeButton) {
+      const thumbsDownSvg = dislikeButton.querySelector('svg.lucide-thumbs-down');
+      if (thumbsDownSvg) {
+        const fillAttr = thumbsDownSvg.getAttribute('fill');
+        const strokeAttr = thumbsDownSvg.getAttribute('stroke');
+        
+        // Disliked state: fill="white" or stroke="white", or aria-label="undislike"
+        const hasFill = fillAttr === 'white' || fillAttr === 'currentColor' || strokeAttr === 'white';
+        const isUndislikeButton = dislikeButton.getAttribute('aria-label') === 'undislike' || 
+                                  dislikeButton.getAttribute('title')?.toLowerCase().includes('remove dislike');
+        
+        song.isDisliked = hasFill || isUndislikeButton;
+      }
+    }
     
     // Only return if we have at least title and URL
     if (song.title && song.url) {
