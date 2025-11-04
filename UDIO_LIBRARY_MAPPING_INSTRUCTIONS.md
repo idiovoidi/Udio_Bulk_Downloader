@@ -16,7 +16,7 @@ Chrome Stable may not have the same debugging restrictions as Chrome Dev.
 1. **Install Chrome Stable** (if not already installed)
 2. **Start Chrome Stable with debugging:**
    ```bash
-   "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\Users\Mitchell\AppData\Local\Google\Chrome\User Data" --profile-directory="Default"
+   "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\Users\[USERNAME]\AppData\Local\Google\Chrome\User Data" --profile-directory="Default"
    ```
 3. **Log in to Udio** in the visible Chrome window
 4. **Run the mapper:**

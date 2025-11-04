@@ -1,13 +1,12 @@
 # Chrome Dev Quick Reference
 
 **Generated:** November 4, 2025  
-**System:** Windows 10.0.26200 (64bit)  
-**User:** Mitchell Local
+**System:** Windows (64bit)
 
 ## Key Information
 
 ### Test Account
-- **Email:** `idiovoidi@gmail.com`
+- **Email:** Your Udio account
 - **Platform:** Udio.com
 - **Purpose:** Development and testing
 
@@ -24,7 +23,7 @@
 scripts/start_chrome_dev_custom.bat
 
 # Or manual command
-"C:\Program Files\Google\Chrome Dev\Application\chrome.exe" --remote-debugging-port=9222 --restore-last-session --user-data-dir="C:\Users\Mitchell\AppData\Local\Google\Chrome Dev\User Data" "https://www.udio.com/library"
+"C:\Program Files\Google\Chrome Dev\Application\chrome.exe" --remote-debugging-port=9222 --restore-last-session --user-data-dir="C:\Users\[USERNAME]\AppData\Local\Google\Chrome Dev\User Data" "https://www.udio.com/library"
 ```
 
 #### Check Debugging Status
@@ -56,7 +55,7 @@ python scripts/ui_mapper_attach.py
 
 2. **Log into Udio:**
    - Navigate to https://www.udio.com/login
-   - Use account: `idiovoidi@gmail.com`
+   - Use your Udio account
    - Verify access to library page
 
 3. **Run UI mapping:**
