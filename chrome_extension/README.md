@@ -129,35 +129,27 @@ SONGS
 
 ## Troubleshooting
 
-### Extension Not Working
+### Common Issues
 
-**Problem:** Extension icon is grayed out or doesn't respond
+**"Could not establish connection" error:**
+- **Solution:** Refresh the Udio page (F5) and try again
+- The content script needs to load after the page loads
 
-**Solutions:**
-1. Make sure you're on https://www.udio.com
-2. Refresh the Udio page
-3. Reload the extension:
-   - Go to `chrome://extensions/`
-   - Click the refresh icon on the extension card
+**"Folder tree panel not found" error:**
+- **Solution:** Click the folder icon (📁) in the top right to open the folder tree panel
+- The panel must be open before starting the mapping
 
-### No Folders or Songs Found
+**Mapping gets stuck:**
+- **Solution:** Check browser console (F12) for errors
+- Large libraries take time (10+ minutes for 200+ folders)
+- Refresh and try again if truly stuck
 
-**Problem:** Mapping completes but shows 0 folders/songs
+**Song count is 0 or wrong:**
+- **Solution:** Songs may take time to load
+- Check that songs appear when you manually click folders
+- May need to adjust wait times for slow connections
 
-**Solutions:**
-1. Make sure you're logged in to Udio
-2. Navigate to the library page: https://www.udio.com/library
-3. Wait for the page to fully load (you should see your content)
-4. Try mapping again
-
-### Export Not Working
-
-**Problem:** Export buttons don't download files
-
-**Solutions:**
-1. Check Chrome's download settings
-2. Make sure downloads aren't blocked
-3. Try a different export format
+For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Technical Details
 
