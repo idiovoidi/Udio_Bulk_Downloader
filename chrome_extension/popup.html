@@ -165,6 +165,18 @@
     📄 Export as Text
   </button>
   
+  <button id="viewLogs" class="secondary" style="background: #455a64; color: white;">
+    📋 View Debug Logs
+  </button>
+  
+  <button id="exportLogs" class="secondary">
+    💾 Export Logs
+  </button>
+  
+  <button id="clearLogs" class="secondary" style="font-size: 12px;">
+    🗑️ Clear Logs
+  </button>
+  
   <div id="progress" class="progress">
     <div class="progress-bar">
       <div id="progressFill" class="progress-fill" style="width: 0%"></div>
@@ -177,6 +189,12 @@
     <div id="resultsContent"></div>
   </div>
   
+  <div id="logsView" class="results" style="display: none; max-height: 300px;">
+    <h3>Debug Logs <span id="logStats" style="font-size: 11px; color: #666;"></span></h3>
+    <div id="logsContent" style="font-family: monospace; font-size: 11px; white-space: pre-wrap;"></div>
+  </div>
+  
+  <script src="logger.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
