@@ -1,0 +1,50 @@
+================================================================================
+  UDIO LIBRARY MAPPER - CHROME EXTENSION
+  Installation Instructions
+================================================================================
+
+IMPORTANT: You need to select THIS FOLDER (chrome_extension) when loading!
+
+STEP-BY-STEP:
+
+1. Open Chrome and go to:
+   chrome://extensions/
+
+2. Turn ON "Developer mode" 
+   (Toggle switch in the TOP RIGHT corner)
+
+3. Click "Load unpacked" button
+   (Top left, near the search bar)
+
+4. In the file browser that opens:
+   - Navigate to your project folder
+   - SELECT THE "chrome_extension" FOLDER
+   - NOT the parent folder!
+   - NOT the "udio_downloader" folder!
+   
+   The correct path should end with:
+   .../Udio_Bulk_Downloader/chrome_extension
+
+5. Click "Select Folder"
+
+6. You should see "Udio Library Mapper" appear in your extensions list
+
+================================================================================
+
+COMMON MISTAKE:
+❌ Selecting the parent folder (Udio_Bulk_Downloader)
+✅ Select the chrome_extension folder specifically
+
+If you see an error about "__init__.py", you selected the wrong folder!
+
+================================================================================
+
+AFTER INSTALLATION:
+
+1. Go to: https://www.udio.com/library
+2. Log in with your account
+3. Click the extension icon in Chrome toolbar
+4. Click "Map Library Structure"
+5. Export your data!
+
+================================================================================
