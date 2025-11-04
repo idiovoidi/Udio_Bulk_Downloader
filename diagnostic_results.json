@@ -1,0 +1,207 @@
+{
+  "user_context": {
+    "current_user": "Mitchell Local",
+    "user_profile": "C:\\Users\\Mitchell",
+    "appdata_local": "C:\\Users\\Mitchell\\AppData\\Local",
+    "appdata_roaming": "C:\\Users\\Mitchell\\AppData\\Roaming",
+    "username_env": "Mitchell Local"
+  },
+  "chrome_processes": [
+    [
+      {
+        "pid": 25840,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=11 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324091890921 --metrics-shmem-handle=5784,i,16142098275315457969,14775152583419631224,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708996619331833 --mojo-platform-channel-handle=5772 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 27928,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-GB --service-sandbox-type=service --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --no-pre-read-main-dll --metrics-shmem-handle=2420,i,9021764671297353638,5747899242118861553,524288 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2492 /prefetch:13",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 34996,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=15 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324092883839 --metrics-shmem-handle=6156,i,9550566749854759071,8206349780189257784,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709000367499229 --mojo-platform-channel-handle=7140 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 37280,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-GB --service-sandbox-type=network --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --no-pre-read-main-dll --start-stack-profiler --metrics-shmem-handle=2104,i,874638067651231336,17002011702603778716,524288 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2256 /prefetch:11",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 38720,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324090237708 --metrics-shmem-handle=3656,i,3343363350911807975,17951636412774041921,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3660 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 39428,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=20 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324119691007 --metrics-shmem-handle=7780,i,17575721203568801388,4397531739711453963,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709005052708474 --mojo-platform-channel-handle=7628 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 41028,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=32 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324419706787 --metrics-shmem-handle=8452,i,17766543171162620876,8789735875100862313,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709016297210662 --mojo-platform-channel-handle=8360 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 44316,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=24 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324312824567 --metrics-shmem-handle=6080,i,7400666811592129767,10017234538991112430,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709008800875870 --mojo-platform-channel-handle=8184 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 44900,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=crashpad-handler --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data /prefetch:4 --monitor-self --monitor-self-argument=--type=crashpad-handler --monitor-self-argument=--user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --monitor-self-argument=/prefetch:4 --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Crashpad --url=https://clients2.google.com/cr/report --annotation=channel=dev --annotation=plat=Win64 --annotation=prod=Chrome --annotation=ver=144.0.7500.5 --initial-client-data=0x11c,0x120,0x124,0xf8,0x128,0x7fff20d39a28,0x7fff20d39a34,0x7fff20d39a40",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 46116,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --remote-debugging-port=9222 --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --profile-directory=Profile 2 --no-first-run --no-default-browser-check --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding https://www.udio.com/library",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 47936,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=26 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324312917529 --metrics-shmem-handle=8128,i,11395802255564866309,15095272562789602836,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709010674959568 --mojo-platform-channel-handle=7476 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 48096,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=gpu-process --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --no-pre-read-main-dll --start-stack-profiler --gpu-preferences=SAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --metrics-shmem-handle=1804,i,15264911560660759618,11919293973113544637,262144 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1980 /prefetch:2",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 48620,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=16 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324092889919 --metrics-shmem-handle=6456,i,6660103168641130056,5726060433279671495,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709001304541078 --mojo-platform-channel-handle=7348 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 51760,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=crashpad-handler --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data /prefetch:4 --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Crashpad --url=https://clients2.google.com/cr/report --annotation=channel=dev --annotation=plat=Win64 --annotation=prod=Chrome --annotation=ver=144.0.7500.5 --initial-client-data=0x180,0x184,0x188,0x108,0x18c,0x7ff6b2e1aa68,0x7ff6b2e1aa74,0x7ff6b2e1aa80",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 51964,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324090236337 --metrics-shmem-handle=3612,i,17169455250298392938,6432001826286105541,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708991934122588 --mojo-platform-channel-handle=3564 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      }
+    ],
+    [
+      {
+        "pid": 25840,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=11 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324091890921 --metrics-shmem-handle=5784,i,16142098275315457969,14775152583419631224,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708996619331833 --mojo-platform-channel-handle=5772 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 34996,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=15 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324092883839 --metrics-shmem-handle=6156,i,9550566749854759071,8206349780189257784,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709000367499229 --mojo-platform-channel-handle=7140 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 38720,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324090237708 --metrics-shmem-handle=3656,i,3343363350911807975,17951636412774041921,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3660 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 39428,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=20 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324119691007 --metrics-shmem-handle=7780,i,17575721203568801388,4397531739711453963,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709005052708474 --mojo-platform-channel-handle=7628 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 41028,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=32 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324419706787 --metrics-shmem-handle=8452,i,17766543171162620876,8789735875100862313,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709016297210662 --mojo-platform-channel-handle=8360 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 44316,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=24 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324312824567 --metrics-shmem-handle=6080,i,7400666811592129767,10017234538991112430,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709008800875870 --mojo-platform-channel-handle=8184 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 46116,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --remote-debugging-port=9222 --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --profile-directory=Profile 2 --no-first-run --no-default-browser-check --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding https://www.udio.com/library",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 47936,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=26 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324312917529 --metrics-shmem-handle=8128,i,11395802255564866309,15095272562789602836,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709010674959568 --mojo-platform-channel-handle=7476 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 48620,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=16 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324092889919 --metrics-shmem-handle=6456,i,6660103168641130056,5726060433279671495,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190709001304541078 --mojo-platform-channel-handle=7348 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      },
+      {
+        "pid": 51964,
+        "name": "chrome.exe",
+        "cmdline": "C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe --type=renderer --user-data-dir=C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --no-pre-read-main-dll --disable-background-timer-throttling --remote-debugging-port=9222 --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1761933781689479 --launch-time-ticks=324090236337 --metrics-shmem-handle=3612,i,17169455250298392938,6432001826286105541,2097152 --field-trial-handle=1972,i,10276507952253661318,11804966020190462340,262144 --variations-seed-version=20251104-030039.000000 --trace-process-track-uuid=3190708991934122588 --mojo-platform-channel-handle=3564 /prefetch:1",
+        "username": "DESKTOP-3B9UFLK\\Mitchell Local"
+      }
+    ]
+  ],
+  "port_status": {
+    "listening": false,
+    "accessible": false
+  },
+  "profile_info": {
+    "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data": {
+      "exists": true,
+      "readable": true,
+      "writable": true,
+      "profiles": [
+        {
+          "name": "Default",
+          "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Default",
+          "size": 2351.7088556289673
+        },
+        {
+          "name": "Profile",
+          "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Profile",
+          "size": 15.87757682800293
+        },
+        {
+          "name": "Profile 1",
+          "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Profile 1",
+          "size": 552.5256700515747
+        },
+        {
+          "name": "Profile 2",
+          "path": "C:\\Users\\Mitchell\\AppData\\Local\\Google\\Chrome Dev\\User Data\\Profile 2",
+          "size": 1483.0449924468994
+        }
+      ]
+    },
+    "C:\\Users\\Mitchell\\AppData\\Roaming\\Google\\Chrome Dev\\User Data": {
+      "exists": false
+    }
+  },
+  "selenium_info": {
+    "selenium_available": true,
+    "options_valid": true,
+    "connection_successful": false,
+    "connection_error": "Message: session not created: cannot connect to chrome at localhost:9222\nfrom chrome not reachable; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#sessionnotcreatedexception\nStacktrace:\n\tGetHandleVerifier [0x0x7ff7eb19e8e5+80021]\n\tGetHandleVerifier [0x0x7ff7eb19e940+80112]\n\t(No symbol) [0x0x7ff7eaf20425]\n\t(No symbol) [0x0x7ff7eaf11128]\n\t(No symbol) [0x0x7ff7eaf64b12]\n\t(No symbol) [0x0x7ff7eaf59aa4]\n\t(No symbol) [0x0x7ff7eafaf040]\n\t(No symbol) [0x0x7ff7eafae7b0]\n\t(No symbol) [0x0x7ff7eafa1003]\n\t(No symbol) [0x0x7ff7eaf695d1]\n\t(No symbol) [0x0x7ff7eaf6a3f3]\n\tGetHandleVerifier [0x0x7ff7eb45dc7d+2960429]\n\tGetHandleVerifier [0x0x7ff7eb457f3a+2936554]\n\tGetHandleVerifier [0x0x7ff7eb478977+3070247]\n\tGetHandleVerifier [0x0x7ff7eb1b83ce+185214]\n\tGetHandleVerifier [0x0x7ff7eb1bfe1f+216527]\n\tGetHandleVerifier [0x0x7ff7eb1a7b24+117460]\n\tGetHandleVerifier [0x0x7ff7eb1a7cdf+117903]\n\tGetHandleVerifier [0x0x7ff7eb18dbb8+11112]\n\tBaseThreadInitThunk [0x0x7fffc207e8d7+23]\n\tRtlUserThreadStart [0x0x7fffc2fcc53c+44]\n"
+  }
+}

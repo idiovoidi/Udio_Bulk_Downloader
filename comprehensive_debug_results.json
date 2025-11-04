@@ -1,0 +1,14 @@
+{
+  "issues": [
+    "Error checking Chrome version: Command '['C:\\\\Program Files\\\\Google\\\\Chrome Dev\\\\Application\\\\chrome.exe', '--version']' timed out after 10 seconds"
+  ],
+  "warnings": [
+    "Windows Defender may interfere with Chrome debugging",
+    "Flag combination warning: May cause security warnings",
+    "Flag combination warning: May affect rendering performance"
+  ],
+  "info": [
+    "Alternative ports available: [9223, 9224, 9225, 9221]",
+    "Minimal Chrome startup works - issue may be with additional flags"
+  ]
+}
