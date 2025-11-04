@@ -44,13 +44,24 @@ A Chrome extension to map and export your Udio library structure (folders and so
 2. Log in with your account (idiovoidi@gmail.com)
 3. Make sure your library page is fully loaded
 
-### Step 2: Map Your Library
+### Step 2: Open the Folder Tree Panel
+
+**IMPORTANT:** Before mapping, you must open the folder tree panel:
+
+1. Look for the **folder icon** (📁) button in the top right of the library page
+2. Click it to open the folder tree side panel
+3. You should see a list of all your folders in the panel
+
+### Step 3: Map Your Library
 
 1. Click the **Udio Library Mapper** extension icon
 2. Click the **"📁 Map Library Structure"** button
-3. Wait for the analysis to complete (usually a few seconds)
+3. Wait for the mapping to complete (this may take several minutes for large libraries)
+   - The extension will automatically expand each folder
+   - It will click into leaf folders to count songs
+   - Progress will be shown in the popup
 
-### Step 3: Export Your Data
+### Step 4: Export Your Data
 
 Once mapping is complete, you'll see:
 - Total number of folders found
