@@ -194,8 +194,20 @@ $RECYCLE.BIN/
 
 # Project specific
 ui_mapping_results/
+ui_mapping_direct/
+ui_analysis/
 screenshots/
 *.png
 *.jpg
 *.jpeg
 *.gif
+
+# Sensitive data
+config/chrome_dev_config.json
+*_debug_results.json
+diagnostic_results.json
+chrome_config_test_results.md
+
+# Output directories
+downloads/
+udio_library_structure/
