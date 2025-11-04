@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="16" height="16" fill="#1976d2" rx="2"/>
+  
+  <!-- Music note -->
+  <g transform="translate(4, 4)">
+    <circle cx="2" cy="6.0" r="2" fill="white"/>
+    <rect x="2" y="2" width="1" height="6.0" fill="white"/>
+    <path d="M 2 2 Q 5 1 5 2" 
+          stroke="white" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Folder indicator -->
+  <rect x="8.0" y="9.0" width="4" height="3" 
+        fill="white" opacity="0.8" rx="0"/>
+</svg>

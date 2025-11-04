@@ -14,15 +14,15 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
     }
   },
   "content_scripts": [
     {
       "matches": ["https://www.udio.com/*"],
-      "js": ["content.js"],
+      "js": ["content_v2.js"],
       "run_at": "document_idle"
     }
   ],
@@ -30,8 +30,8 @@
     "service_worker": "background.js"
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
   }
 }
