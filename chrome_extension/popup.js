@@ -5,6 +5,7 @@ let libraryData = null;
 // DOM elements
 const statusDiv = document.getElementById('status');
 const mapButton = document.getElementById('mapLibrary');
+const downloadButton = document.getElementById('downloadAll');
 const exportJsonButton = document.getElementById('exportJson');
 const exportTextButton = document.getElementById('exportText');
 const progressDiv = document.getElementById('progress');
@@ -164,6 +165,7 @@ function startProgressPolling(tabId) {
           displayResults(displayData);
           hideProgress();
           mapButton.disabled = false;
+          downloadButton.disabled = false; // Enable download button
         }
       }
     });
@@ -266,6 +268,98 @@ function formatFolderHierarchy(folder, depth, prefix) {
   return text;
 }
 
+// Download all songs
+async function downloadAllSongs() {
+  if (!libraryData || !libraryData.folders) {
+    updateStatus('Please map the library first', 'error');
+    return;
+  }
+  
+  updateStatus('Starting download...', 'info');
+  downloadButton.disabled = true;
+  
+  try {
+    // Collect all songs from all folders
+    const allSongs = [];
+    
+    function collectSongs(folders, path = []) {
+      folders.forEach(folder => {
+        const folderPath = [...path, folder.name];
+        
+        if (folder.songs && folder.songs.length > 0) {
+          folder.songs.forEach(song => {
+            allSongs.push({
+              ...song,
+              folderPath: folderPath
+            });
+          });
+        }
+        
+        if (folder.subfolders && folder.subfolders.length > 0) {
+          collectSongs(folder.subfolders, folderPath);
+        }
+      });
+    }
+    
+    collectSongs(libraryData.folders);
+    
+    console.log(`Collected ${allSongs.length} songs to download`);
+    
+    if (allSongs.length === 0) {
+      updateStatus('No songs found to download', 'warning');
+      downloadButton.disabled = false;
+      return;
+    }
+    
+    // Download each song
+    let downloaded = 0;
+    for (const song of allSongs) {
+      if (song.downloadUrl || song.url) {
+        const folderPath = song.folderPath.join('/');
+        const filename = `Udio Library/${folderPath}/${sanitizeFilename(song.title || song.id || 'unknown')}.mp3`;
+        
+        try {
+          await chrome.downloads.download({
+            url: song.downloadUrl || song.url,
+            filename: filename,
+            saveAs: false
+          });
+          
+          downloaded++;
+          updateProgress(
+            Math.round((downloaded / allSongs.length) * 100),
+            `Downloading: ${downloaded}/${allSongs.length}`
+          );
+          
+          // Small delay to avoid overwhelming the browser
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error) {
+          console.error(`Failed to download ${song.title}:`, error);
+        }
+      }
+    }
+    
+    hideProgress();
+    updateStatus(`✓ Downloaded ${downloaded} songs!`, 'success');
+    
+  } catch (error) {
+    console.error('Download error:', error);
+    updateStatus(`Error: ${error.message}`, 'error');
+    hideProgress();
+  } finally {
+    downloadButton.disabled = false;
+  }
+}
+
+// Sanitize filename for downloads
+function sanitizeFilename(filename) {
+  return filename
+    .replace(/[<>:"/\\|?*]/g, '_')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .substring(0, 200);
+}
+
 // Dump tree structure for debugging
 async function dumpTreeStructure() {
   try {
@@ -284,6 +378,7 @@ async function dumpTreeStructure() {
 const dumpButton = document.getElementById('dumpStructure');
 mapButton.addEventListener('click', mapLibrary);
 dumpButton.addEventListener('click', dumpTreeStructure);
+downloadButton.addEventListener('click', downloadAllSongs);
 exportJsonButton.addEventListener('click', exportAsJson);
 exportTextButton.addEventListener('click', exportAsText);
 

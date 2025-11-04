@@ -28,6 +28,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       inProgress: mappingInProgress,
       structure: currentStructure
     });
+  } else if (request.action === 'downloadSong') {
+    // Download a single song
+    downloadSong(request.song);
+    sendResponse({ status: 'downloading' });
   }
   
   return true;
@@ -195,71 +199,137 @@ async function processFolderItem(item, parentPath, treeContainer) {
     // Leaf folder - click to view songs
     console.log(`Leaf folder: ${folderName}, clicking to view songs`);
     nameButton.click();
-    await sleep(1000); // Wait for songs to load
+    await sleep(1500); // Wait for songs to load
     
-    // Try to count songs in the main view
-    const songCount = await countSongsInView();
-    folderData.songCount = songCount;
-    currentStructure.totalSongs += songCount;
+    // Extract song information
+    const songs = await extractSongsFromView();
+    folderData.songs = songs;
+    folderData.songCount = songs.length;
+    currentStructure.totalSongs += songs.length;
     
-    console.log(`Found ${songCount} songs in ${folderName}`);
+    console.log(`Found ${songs.length} songs in ${folderName}`);
+    
+    // Add folder path to each song for later download
+    songs.forEach(song => {
+      song.folderPath = currentPath;
+    });
   }
   
   return folderData;
 }
 
-async function countSongsInView() {
-  // Wait a bit for content to load
-  await sleep(500);
+async function extractSongsFromView() {
+  // Wait for content to load
+  await sleep(800);
   
-  // Try multiple selectors to find song elements
-  const songSelectors = [
-    '[data-testid*="song"]',
-    '[data-song-id]',
-    '[role="article"]',
-    '.song-item',
-    '[class*="song-card"]',
-    '[class*="track-item"]'
-  ];
+  const songs = [];
   
-  for (const selector of songSelectors) {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 0) {
-      console.log(`Found ${elements.length} songs using selector: ${selector}`);
-      return elements.length;
-    }
+  // Songs are in table rows with specific structure
+  // Look for rows that contain song links
+  const songRows = document.querySelectorAll('tr[class*="absolute"]');
+  
+  console.log(`Found ${songRows.length} potential song rows`);
+  
+  if (songRows.length === 0) {
+    // Fallback: look for any links to /songs/
+    const songLinks = document.querySelectorAll('a[href*="/songs/"]');
+    console.log(`Fallback: Found ${songLinks.length} song links`);
+    
+    songLinks.forEach((link) => {
+      const container = link.closest('tr, div[class*="group"]');
+      if (container && !songs.find(s => s.url === link.href)) {
+        const song = extractSongFromElement(container);
+        if (song) songs.push(song);
+      }
+    });
+  } else {
+    // Extract from table rows
+    songRows.forEach((row) => {
+      const song = extractSongFromElement(row);
+      if (song) songs.push(song);
+    });
   }
   
-  // Fallback: look for any repeated elements that might be songs
-  const mainContent = document.querySelector('main, [role="main"], .content');
-  if (mainContent) {
-    // Look for repeated elements with similar structure
-    const allElements = mainContent.querySelectorAll('div[class], article[class]');
-    const classCount = {};
+  console.log(`Extracted ${songs.length} songs with metadata`);
+  return songs;
+}
+
+function extractSongFromElement(element) {
+  try {
+    const song = {
+      title: null,
+      url: null,
+      id: null,
+      duration: null,
+      imageUrl: null,
+      tags: [],
+      plays: null,
+      likes: null
+    };
     
-    allElements.forEach(el => {
-      const className = el.className;
-      if (className && className.length > 10 && className.length < 200) {
-        classCount[className] = (classCount[className] || 0) + 1;
+    // Find title (in h4 tag)
+    const titleElement = element.querySelector('h4');
+    if (titleElement) {
+      song.title = titleElement.textContent.trim();
+    }
+    
+    // Find song URL and ID
+    const linkElement = element.querySelector('a[href*="/songs/"]');
+    if (linkElement) {
+      song.url = linkElement.href;
+      const match = song.url.match(/\/songs\/([^/?]+)/);
+      if (match) {
+        song.id = match[1];
+      }
+    }
+    
+    // Find image
+    const imgElement = element.querySelector('img[alt]');
+    if (imgElement) {
+      song.imageUrl = imgElement.src;
+    }
+    
+    // Find duration (looks like "2:10")
+    const textNodes = element.querySelectorAll('.text-muted-foreground');
+    textNodes.forEach(node => {
+      const text = node.textContent.trim();
+      if (/^\d+:\d+$/.test(text)) {
+        song.duration = text;
       }
     });
     
-    // Find the most common class (likely songs)
-    let maxCount = 0;
-    for (const count of Object.values(classCount)) {
-      if (count > maxCount) {
-        maxCount = count;
+    // Find tags
+    const tagLinks = element.querySelectorAll('a[href*="/tags/"]');
+    tagLinks.forEach(tag => {
+      song.tags.push(tag.textContent.trim());
+    });
+    
+    // Find play count and likes
+    const svgIcons = element.querySelectorAll('svg.lucide-play, svg.lucide-thumbs-up');
+    svgIcons.forEach(svg => {
+      const nextText = svg.nextSibling;
+      if (nextText && nextText.textContent) {
+        const count = parseInt(nextText.textContent.trim());
+        if (!isNaN(count)) {
+          if (svg.classList.contains('lucide-play')) {
+            song.plays = count;
+          } else if (svg.classList.contains('lucide-thumbs-up')) {
+            song.likes = count;
+          }
+        }
       }
+    });
+    
+    // Only return if we have at least title and URL
+    if (song.title && song.url) {
+      return song;
     }
     
-    if (maxCount > 2) {
-      console.log(`Estimated ${maxCount} songs based on repeated elements`);
-      return maxCount;
-    }
+    return null;
+  } catch (error) {
+    console.warn('Error extracting song:', error);
+    return null;
   }
-  
-  console.log('Could not determine song count');
-  return 0;
 }
 
 function sleep(ms) {
@@ -345,6 +415,52 @@ async function dumpTreeStructure() {
   });
   
   console.log('\n========== END DIAGNOSTIC ==========\n');
+}
+
+// Download a single song
+async function downloadSong(song) {
+  console.log(`Downloading: ${song.title} from ${song.folderPath.join('/')}`);
+  
+  try {
+    // Navigate to song page
+    window.location.href = song.url;
+    
+    // Wait for page to load
+    await sleep(2000);
+    
+    // Find download button (button with lucide-download icon)
+    const downloadButton = document.querySelector('button:has(svg.lucide-download)');
+    
+    if (!downloadButton) {
+      console.error('Download button not found');
+      return;
+    }
+    
+    console.log('Clicking download button...');
+    downloadButton.click();
+    
+    // Wait for menu to appear
+    await sleep(500);
+    
+    // Look for MP3 option in the menu
+    // The menu items might be in a dropdown/menu element
+    const menuItems = document.querySelectorAll('[role="menuitem"], [role="option"], button');
+    
+    for (const item of menuItems) {
+      const text = item.textContent.toLowerCase();
+      if (text.includes('mp3')) {
+        console.log('Clicking MP3 option...');
+        item.click();
+        await sleep(500);
+        break;
+      }
+    }
+    
+    console.log('Download initiated for:', song.title);
+    
+  } catch (error) {
+    console.error('Error downloading song:', error);
+  }
 }
 
 // Log when script loads
