@@ -280,6 +280,18 @@ function exportAsText() {
   updateStatus('Text export started', 'success');
 }
 
+// Helper function to count total subfolders recursively
+function countTotalSubfolders(folder) {
+  let count = 0;
+  if (folder.subfolders && folder.subfolders.length > 0) {
+    count += folder.subfolders.length;
+    folder.subfolders.forEach(subfolder => {
+      count += countTotalSubfolders(subfolder);
+    });
+  }
+  return count;
+}
+
 // Helper function to format folder hierarchy
 function formatFolderHierarchy(folder, depth, prefix) {
   const indent = '  '.repeat(depth);
@@ -394,11 +406,19 @@ async function downloadAllSongs() {
 function exportSongChecklist() {
   if (!libraryData) return;
   
+  // Count total subfolders recursively
+  let totalSubfolders = 0;
+  const rootFolders = libraryData.folders || libraryData.rootFolders || [];
+  rootFolders.forEach(folder => {
+    totalSubfolders += countTotalSubfolders(folder);
+  });
+  
   let text = '═══════════════════════════════════════════════════════════\n';
   text += '           UDIO LIBRARY - COMPLETE SONG CHECKLIST\n';
   text += '═══════════════════════════════════════════════════════════\n\n';
   text += `Generated: ${new Date().toLocaleString()}\n`;
   text += `Total Folders: ${libraryData.totalFolders || 0}\n`;
+  text += `Total Subfolders: ${totalSubfolders}\n`;
   text += `Total Songs: ${libraryData.totalSongs || 0}\n\n`;
   
   // Collect all songs with their paths

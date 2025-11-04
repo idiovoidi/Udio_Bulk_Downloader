@@ -290,7 +290,7 @@ async function processFolderItem(item, parentPath, treeContainer) {
     // Leaf folder - click to view songs
     console.log(`Leaf folder: ${folderName}, clicking to view songs`);
     nameButton.click();
-    await sleep(1500); // Wait for songs to load
+    await sleep(2500); // Wait for songs to load (increased delay)
     
     // Extract song information
     const songs = await extractSongsFromView();
@@ -311,7 +311,7 @@ async function processFolderItem(item, parentPath, treeContainer) {
 
 async function extractSongsFromView() {
   // Wait for content to load
-  await sleep(800);
+  await sleep(1500); // Increased delay to ensure songs are fully loaded
   
   const songs = [];
   
