@@ -4,37 +4,16 @@
 
 ```
 udio_downloader/          # Main package
-├── models/               # Data models
-│   ├── download_config.py    # Download configuration settings
-│   ├── folder_node.py        # Hierarchical folder structure
-│   └── song_info.py          # Song metadata model
-├── services/             # Business logic services
-│   ├── authentication.py     # Udio login and session management
-│   ├── credential_manager.py # Secure credential storage
-│   └── folder_mapper.py      # Library structure mapping
+├── models/               # Data models (download_config, folder_node, song_info)
+├── services/             # Business logic (authentication, credential_manager, folder_mapper)
 ├── utils/                # Utility functions
 ├── cli.py                # Click-based CLI interface
-├── __init__.py           # Package initialization
 └── __main__.py           # Entry point for python -m execution
 
-scripts/                  # Standalone utility scripts
-├── map_udio_library_structure.py  # Library structure analyzer
-├── chrome_debug_final_solution.py # Chrome debugging setup
-├── ui_mapper_direct.py            # Direct UI mapping via CDP
-├── open_udio_for_login.py         # Login helper
-└── *.bat                          # Windows batch scripts for Chrome
-
+scripts/                  # Standalone utility scripts and batch files
 config/                   # Configuration files
-└── chrome_dev_config.json
-
 docs/                     # Documentation
-├── chrome_debugging_solution.md
-├── chrome_dev_setup.md
-└── chrome_setup.md
-
-ui_mapping_direct/        # UI analysis results (JSON)
-ui_analysis/              # UI analysis reports
-udio_library_structure/   # Library mapping output
+chrome_extension/         # Chrome extension for library mapping
 ```
 
 ## Architecture Patterns
@@ -56,15 +35,9 @@ Business logic is organized into service classes:
 - Entry point via `__main__.py` for `python -m udio_downloader`
 
 ### Browser Automation Strategy
-Two approaches used:
-1. **Selenium WebDriver** - Full browser automation with driver management
-2. **Chrome DevTools Protocol** - Direct CDP via WebSocket for logged-in sessions
-
-### Script Organization
-- Production code in `udio_downloader/` package
-- Development/diagnostic scripts in `scripts/` directory
-- Scripts are standalone and can be run directly
-- Batch files (`.bat`) for Windows-specific Chrome launching
+- **Selenium WebDriver** - Full browser automation with driver management
+- **Chrome DevTools Protocol** - Direct CDP via WebSocket for logged-in sessions
+- **Chrome Extension** - Browser extension for direct library access
 
 ## Key Conventions
 
@@ -90,6 +63,6 @@ Two approaches used:
 - Automatic session renewal on expiry
 
 ### Output Directories
-- Downloads default to `./downloads`
-- Library structure output to `./udio_library_structure`
-- UI analysis output to `./ui_mapping_direct` and `./ui_analysis`
+- Downloads: `./downloads`
+- Library structure: `./udio_library_structure`
+- UI analysis: `./ui_mapping_direct` and `./ui_analysis`
