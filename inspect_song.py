@@ -59,16 +59,63 @@ async def main():
             song_id = current_url.split('/songs/')[-1].split('?')[0].split('/')[0]
             print(f"✓ Song ID: {song_id}")
         
-        # Look for download button
+        # Wait for page to fully load
+        print("\n⏳ Waiting for page to fully load...")
+        await asyncio.sleep(3)
+        
+        # Look for download button with multiple strategies
         print("\n🔍 Looking for download button...")
+        
+        # First, let's see what buttons are on the page and their titles
+        button_info = await page.evaluate("""
+            () => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                return buttons.map(btn => ({
+                    title: btn.getAttribute('title'),
+                    ariaLabel: btn.getAttribute('aria-label'),
+                    text: btn.textContent?.trim().substring(0, 50),
+                    hasSvg: !!btn.querySelector('svg')
+                })).filter(b => b.title || b.ariaLabel || b.hasSvg);
+            }
+        """)
+        
+        print(f"  Found {len(button_info)} buttons with titles/labels:")
+        for info in button_info[:10]:
+            print(f"    - Title: {info['title']}, Label: {info['ariaLabel']}, Text: {info['text']}, HasSVG: {info['hasSvg']}")
+        
+        # Try multiple selectors
         download_button = await page.query_selector('button[title="Download media"]')
+        
+        if not download_button:
+            print("  Trying alternative selectors...")
+            # Use JavaScript to find the button
+            download_button = await page.evaluate_handle("""
+                () => {
+                    const buttons = Array.from(document.querySelectorAll('button'));
+                    return buttons.find(btn => {
+                        const title = btn.getAttribute('title');
+                        if (title && title.toLowerCase().includes('download')) return true;
+                        
+                        const svg = btn.querySelector('svg');
+                        if (!svg) return false;
+                        
+                        const paths = svg.querySelectorAll('path');
+                        return Array.from(paths).some(path => 
+                            path.getAttribute('d')?.includes('m12 16')
+                        );
+                    });
+                }
+            """)
+            
+            # Check if we got a valid element
+            if download_button:
+                try:
+                    await download_button.evaluate('el => el.tagName')
+                except:
+                    download_button = None
         
         if download_button:
             print("✓ Found download button!")
-            
-            # Get button details
-            button_html = await download_button.evaluate('el => el.outerHTML')
-            print(f"\nButton HTML:\n{button_html[:200]}...")
             
             # Set up network request listener BEFORE clicking
             print("\n🔍 Setting up network listener...")
@@ -86,12 +133,39 @@ async def main():
             
             page.on('request', handle_request)
             
-            # Click the download button
-            print("\n🖱️  Clicking download button...")
+            # Click the download button to open popup
+            print("\n🖱️  Clicking download button to open popup...")
             await download_button.click()
+            await asyncio.sleep(1)
             
-            # Wait for download to start
-            await asyncio.sleep(3)
+            # Look for MP3 option in the popup
+            print("🔍 Looking for MP3 option...")
+            mp3_option = await page.query_selector('text=MP3')
+            
+            if mp3_option:
+                print("✓ Found MP3 option, clicking...")
+                await mp3_option.click()
+                await asyncio.sleep(0.5)
+            else:
+                print("⚠️  MP3 option not found, trying alternative selector...")
+                mp3_option = await page.query_selector('div:has-text("MP3")')
+                if mp3_option:
+                    await mp3_option.click()
+                    await asyncio.sleep(0.5)
+            
+            # Look for the actual Download button in the popup
+            print("🔍 Looking for Download button in popup...")
+            popup_download_btn = await page.query_selector('button:has-text("Download")')
+            
+            if popup_download_btn:
+                print("✓ Found Download button, clicking...")
+                await popup_download_btn.click()
+                
+                # Wait for download to start
+                print("⏳ Waiting for download to start...")
+                await asyncio.sleep(5)
+            else:
+                print("❌ Download button not found in popup")
             
             # Remove listener
             page.remove_listener('request', handle_request)
@@ -104,7 +178,7 @@ async def main():
                     print(f"  Headers: {list(req['headers'].keys())}")
             else:
                 print("\n⚠️  No download requests captured")
-                print("   The download might be handled differently")
+                print("   The download might be handled differently (direct download)")
         else:
             print("❌ No download button found")
         
@@ -145,17 +219,24 @@ async def main():
             for link in api_links[:10]:
                 print(f"  - {link}")
         
-        # Extract all tags from song page
+        # Extract all tags from song page (deduplicated)
         print("\n🔍 Extracting tags from song page...")
         tags = await page.evaluate("""
             () => {
                 const tagElements = document.querySelectorAll('.text-brand-gray-light, a[href*="/tags/"]');
-                return Array.from(tagElements).map(el => el.textContent.trim());
+                const tagSet = new Set();
+                tagElements.forEach(el => {
+                    const text = el.textContent.trim();
+                    if (text && text !== 'More' && text !== 'Credits') {
+                        tagSet.add(text);
+                    }
+                });
+                return Array.from(tagSet);
             }
         """)
         
         if tags:
-            print(f"✓ Found {len(tags)} tags: {', '.join(tags[:10])}")
+            print(f"✓ Found {len(tags)} unique tags: {', '.join(tags[:10])}")
             if len(tags) > 10:
                 print(f"  ... and {len(tags) - 10} more")
         
