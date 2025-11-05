@@ -77,14 +77,42 @@ class PlaywrightSessionManager:
             args=[
                 '--disable-blink-features=AutomationControlled',
                 '--disable-dev-shm-usage',
-                '--no-sandbox'
+                '--no-sandbox',
+                '--disable-infobars',
+                '--disable-automation',
+                '--disable-browser-side-navigation',
+                '--disable-gpu'
             ],
             viewport={'width': 1920, 'height': 1080},
-            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            ignore_default_args=['--enable-automation']
         )
         
         # Set default timeout
         self.browser_context.set_default_timeout(self.timeout)
+        
+        # Add stealth script to hide automation
+        await self.browser_context.add_init_script("""
+            // Hide webdriver flag
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined
+            });
+            
+            // Hide automation flags
+            window.navigator.chrome = {
+                runtime: {}
+            };
+            
+            // Overwrite the plugins array
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => [1, 2, 3, 4, 5]
+            });
+            
+            // Overwrite the languages array
+            Object.defineProperty(navigator, 'languages', {
+                get: () => ['en-US', 'en']
+            });
+        """)
         
         self.is_initialized = True
         logger.info("Playwright browser context initialized successfully")

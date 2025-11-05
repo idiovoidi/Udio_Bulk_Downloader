@@ -34,6 +34,22 @@
       "program": "${workspaceFolder}/test_full_workflow.py",
       "console": "integratedTerminal",
       "justMyCode": false
+    },
+    {
+      "name": "Python: Scrape Udio (Debug)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scrape_udio_simple.py",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Scrape Udio (Full)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scrape_udio_library.py",
+      "console": "integratedTerminal",
+      "justMyCode": false
     }
   ]
 }
