@@ -2,6 +2,57 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Udio Downloader Status",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "udio_downloader",
+      "args": ["status"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Udio Downloader Import Test",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "udio_downloader",
+      "args": ["import-metadata", "--json-file", "test_metadata.json"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Udio Downloader Download",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "udio_downloader",
+      "args": ["download", "--concurrent", "3"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Test Full Workflow",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test_full_workflow.py",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Test Playwright",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test_playwright.py",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Verify Installation",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/verify_installation.py",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Launch Chrome Extension (Temp Profile)",
       "type": "chrome",
       "request": "launch",
