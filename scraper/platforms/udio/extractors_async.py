@@ -178,16 +178,78 @@ class UdioSongExtractor:
             except:
                 pass
             
+            # Like/Dislike status
+            is_liked = await self._check_liked(element)
+            is_disliked = await self._check_disliked(element)
+            
             return {
                 'url': url,
                 'id': self._extract_id_from_url(url),
                 'title': title.strip() if title else 'Unknown',
                 'duration': duration,
                 'imageUrl': image_url,
-                'tags': tags
+                'tags': tags,
+                'isLiked': is_liked,
+                'isDisliked': is_disliked
             }
         except:
             return None
+    
+    async def _check_liked(self, element):
+        """Check if song is liked (thumbs-up button is filled/active)"""
+        try:
+            # Find the like button
+            like_button = await element.query_selector('button:has(svg.lucide-thumbs-up)')
+            if not like_button:
+                return False
+            
+            # Get the SVG element
+            thumbs_up_svg = await like_button.query_selector('svg.lucide-thumbs-up')
+            if not thumbs_up_svg:
+                return False
+            
+            # Check fill and stroke attributes
+            fill_attr = await thumbs_up_svg.get_attribute('fill')
+            stroke_attr = await thumbs_up_svg.get_attribute('stroke')
+            
+            # Check aria-label
+            aria_label = await like_button.get_attribute('aria-label')
+            
+            # Liked state: fill="white" or fill="currentColor" or stroke="white" or aria-label="unlike"
+            has_fill = fill_attr in ['white', 'currentColor'] or stroke_attr == 'white'
+            is_unlike_button = aria_label == 'unlike'
+            
+            return has_fill or is_unlike_button
+        except:
+            return False
+    
+    async def _check_disliked(self, element):
+        """Check if song is disliked (thumbs-down button is filled/active)"""
+        try:
+            # Find the dislike button
+            dislike_button = await element.query_selector('button:has(svg.lucide-thumbs-down)')
+            if not dislike_button:
+                return False
+            
+            # Get the SVG element
+            thumbs_down_svg = await dislike_button.query_selector('svg.lucide-thumbs-down')
+            if not thumbs_down_svg:
+                return False
+            
+            # Check fill and stroke attributes
+            fill_attr = await thumbs_down_svg.get_attribute('fill')
+            stroke_attr = await thumbs_down_svg.get_attribute('stroke')
+            
+            # Check aria-label
+            aria_label = await dislike_button.get_attribute('aria-label')
+            
+            # Disliked state: fill="white" or fill="currentColor" or stroke="white" or aria-label="undislike"
+            has_fill = fill_attr in ['white', 'currentColor'] or stroke_attr == 'white'
+            is_undislike_button = aria_label == 'undislike'
+            
+            return has_fill or is_undislike_button
+        except:
+            return False
     
     def _extract_id_from_url(self, url):
         """Extract song ID from URL"""
