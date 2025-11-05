@@ -397,10 +397,13 @@ async def main():
         try:
             await logger_tool.monitor_session()
         except KeyboardInterrupt:
-            pass
+            print("\n\n⏹️  Recording stopped")
         
         # Collect any final actions
-        await logger_tool.collect_actions()
+        try:
+            await logger_tool.collect_actions()
+        except:
+            pass
         
         # Save log
         print()
@@ -434,20 +437,58 @@ async def main():
         print()
         print("📄 File: action_log.json")
         print()
-        print("To view the log:")
+        
+        # Print full log to terminal as backup
+        print()
+        print("=" * 60)
+        print("FULL LOG (BACKUP)")
+        print("=" * 60)
+        print()
+        print("Copy this if file save failed:")
+        print()
+        print(json.dumps(log_data, indent=2))
+        print()
+        print("=" * 60)
+        print()
+        print("To view the log file:")
         print("  cat action_log.json")
         print()
-        print("Or open it in your editor to share with me!")
+        print("Or just copy the JSON above!")
         print()
         
     except KeyboardInterrupt:
-        print("\nInterrupted by user")
+        print("\n\n⏹️  Interrupted - saving what we have...")
+        # Try to save whatever was collected
+        try:
+            await logger_tool.collect_actions()
+            log_data = logger_tool.save_log()
+            print("✅ Log saved!")
+            
+            # Print to terminal as backup
+            print()
+            print("=" * 60)
+            print("FULL LOG (BACKUP)")
+            print("=" * 60)
+            print()
+            print(json.dumps(log_data, indent=2))
+            print()
+            print("=" * 60)
+        except Exception as e:
+            print(f"❌ Could not save log: {e}")
+            # Still try to print what we have
+            if logger_tool.actions:
+                print()
+                print("Raw actions collected:")
+                print(json.dumps(logger_tool.actions, indent=2))
     except Exception as e:
         logger.error(f"Error: {e}")
         import traceback
         traceback.print_exc()
     finally:
-        await logger_tool.cleanup()
+        try:
+            await logger_tool.cleanup()
+        except:
+            pass
 
 
 if __name__ == "__main__":
