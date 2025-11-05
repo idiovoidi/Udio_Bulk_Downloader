@@ -2,7 +2,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Udio Downloader Status",
+      "name": "Python: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Udio Status",
       "type": "debugpy",
       "request": "launch",
       "module": "udio_downloader",
@@ -11,20 +19,11 @@
       "justMyCode": false
     },
     {
-      "name": "Python: Udio Downloader Import Test",
+      "name": "Python: Udio Import Test Data",
       "type": "debugpy",
       "request": "launch",
       "module": "udio_downloader",
       "args": ["import-metadata", "--json-file", "test_metadata.json"],
-      "console": "integratedTerminal",
-      "justMyCode": false
-    },
-    {
-      "name": "Python: Udio Downloader Download",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "udio_downloader",
-      "args": ["download", "--concurrent", "3"],
       "console": "integratedTerminal",
       "justMyCode": false
     },
@@ -35,144 +34,6 @@
       "program": "${workspaceFolder}/test_full_workflow.py",
       "console": "integratedTerminal",
       "justMyCode": false
-    },
-    {
-      "name": "Python: Test Playwright",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/test_playwright.py",
-      "console": "integratedTerminal",
-      "justMyCode": false
-    },
-    {
-      "name": "Python: Verify Installation",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/verify_installation.py",
-      "console": "integratedTerminal",
-      "justMyCode": false
-    },
-    {
-      "name": "Launch Chrome Extension (Temp Profile)",
-      "type": "chrome",
-      "request": "launch",
-      "url": "https://www.udio.com/library",
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "userDataDir": "${workspaceFolder}/.chrome-debug-profile",
-      "runtimeExecutable": "chrome",
-      "runtimeArgs": [
-        "--disable-extensions-except=${workspaceFolder}/chrome_extension",
-        "--load-extension=${workspaceFolder}/chrome_extension"
-      ],
-      "sourceMaps": true,
-      "preLaunchTask": "Clear Chrome Debug Profile"
-    },
-    {
-      "name": "Launch Chrome Extension (Keep Login)",
-      "type": "chrome",
-      "request": "launch",
-      "url": "https://www.udio.com/library",
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "userDataDir": "${workspaceFolder}/.chrome-debug-persistent",
-      "runtimeExecutable": "chrome",
-      "runtimeArgs": [
-        "--disable-extensions-except=${workspaceFolder}/chrome_extension",
-        "--load-extension=${workspaceFolder}/chrome_extension"
-      ],
-      "sourceMaps": true
-    },
-    {
-      "name": "Launch Chrome Extension (Your Default Profile)",
-      "type": "chrome",
-      "request": "launch",
-      "url": "https://www.udio.com/library",
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "runtimeExecutable": "chrome",
-      "runtimeArgs": [
-        "--load-extension=${workspaceFolder}/chrome_extension"
-      ],
-      "sourceMaps": true
-    },
-    {
-      "name": "Launch Edge Extension (Keep Login)",
-      "type": "msedge",
-      "request": "launch",
-      "url": "https://www.udio.com/library",
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "userDataDir": "${workspaceFolder}/.edge-debug-persistent",
-      "runtimeArgs": [
-        "--disable-extensions-except=${workspaceFolder}/chrome_extension",
-        "--load-extension=${workspaceFolder}/chrome_extension"
-      ],
-      "sourceMaps": true
-    },
-    {
-      "name": "Attach to Chrome (Your Profile)",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "urlFilter": "https://www.udio.com/*",
-      "sourceMaps": true
-    },
-    {
-      "name": "Attach to Edge (Your Profile)",
-      "type": "msedge",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "urlFilter": "https://www.udio.com/*",
-      "sourceMaps": true
-    },
-    {
-      "name": "Attach to Chrome Extension",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "urlFilter": "https://www.udio.com/*",
-      "sourceMaps": true
-    },
-    {
-      "name": "Debug Extension Popup",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "urlFilter": "chrome-extension://*",
-      "sourceMaps": true
-    },
-    {
-      "name": "Debug Content Script",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/chrome_extension",
-      "urlFilter": "https://www.udio.com/*",
-      "sourceMaps": true,
-      "pathMapping": {
-        "/": "${workspaceFolder}/chrome_extension"
-      }
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Debug Extension (Full - Temp)",
-      "configurations": [
-        "Launch Chrome Extension (Temp Profile)",
-        "Debug Extension Popup",
-        "Debug Content Script"
-      ],
-      "stopAll": true
-    },
-    {
-      "name": "Debug Extension (Full - Keep Login)",
-      "configurations": [
-        "Launch Chrome Extension (Keep Login)",
-        "Debug Extension Popup",
-        "Debug Content Script"
-      ],
-      "stopAll": true
     }
   ]
 }
