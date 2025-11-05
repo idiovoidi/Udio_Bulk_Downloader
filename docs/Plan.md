@@ -3,3 +3,5 @@ I have a new plan, how about we refactor the extension to just map out all the f
 
 
 This method will be more comphrehensive and will account for bugs and delays in their website by allowing us to effectively scrape all user songs.
+
+Ideally once all songs are scraped I'd also like to recreate a superior minimalistic version of the Udio UI but locally run so I can still navigate all my songs like before but initially we should just focus on the collection of song metadata and their download.
