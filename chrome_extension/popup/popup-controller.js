@@ -67,6 +67,14 @@ export class PopupController {
     this.ui.elements.viewLogs.addEventListener('click', () => this.toggleLogs());
     this.ui.elements.exportLogs.addEventListener('click', () => this.exportLogs());
     this.ui.elements.clearLogs.addEventListener('click', () => this.clearLogs());
+    
+    // Cache management
+    if (this.ui.elements.clearCache) {
+      this.ui.elements.clearCache.addEventListener('click', () => this.clearCache());
+    }
+    if (this.ui.elements.cacheStats) {
+      this.ui.elements.cacheStats.addEventListener('click', () => this.getCacheStats());
+    }
   }
 
   async mapLibrary() {
@@ -176,6 +184,31 @@ export class PopupController {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       await chrome.tabs.sendMessage(tab.id, { action: 'dumpStructure' });
       this.ui.updateStatus('✓ Tree structure dumped to console (F12)', 'success');
+    } catch (error) {
+      this.ui.updateStatus(`Error: ${error.message}`, 'error');
+    }
+  }
+
+  async clearCache() {
+    try {
+      this.ui.updateStatus('Clearing cache...', 'info');
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const response = await chrome.tabs.sendMessage(tab.id, { action: 'clearCache' });
+      if (response?.status === 'cleared') {
+        this.ui.updateStatus(`✓ Cache cleared (${response.stats.folders} folders, ${response.stats.songs} songs)`, 'success');
+      }
+    } catch (error) {
+      this.ui.updateStatus(`Error: ${error.message}`, 'error');
+    }
+  }
+
+  async getCacheStats() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const response = await chrome.tabs.sendMessage(tab.id, { action: 'getCacheStats' });
+      if (response?.stats) {
+        this.ui.updateStatus(`Cache: ${response.stats.folders} folders, ${response.stats.songs} songs`, 'info');
+      }
     } catch (error) {
       this.ui.updateStatus(`Error: ${error.message}`, 'error');
     }

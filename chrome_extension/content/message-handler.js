@@ -41,6 +41,17 @@ export class MessageHandler {
           sendResponse({ status: 'downloading' });
           break;
 
+        case 'clearCache':
+          this.folderMapper.clearCache();
+          const stats = this.folderMapper.getCacheStats();
+          sendResponse({ status: 'cleared', stats });
+          break;
+
+        case 'getCacheStats':
+          const cacheStats = this.folderMapper.getCacheStats();
+          sendResponse({ status: 'success', stats: cacheStats });
+          break;
+
         default:
           sendResponse({ status: 'unknown_action' });
       }

@@ -4,10 +4,18 @@ import { DOMUtils } from './dom-utils.js';
 export class SongExtractor {
   constructor(logger) {
     this.logger = logger;
+    this.cache = new Map(); // Cache songs by folder path
   }
 
-  async extractSongsFromView() {
-    await DOMUtils.sleep(1500);
+  async extractSongsFromView(folderPath = null) {
+    // Check cache first
+    const cacheKey = folderPath ? folderPath.join('/') : 'root';
+    if (this.cache.has(cacheKey)) {
+      this.logger?.info(`Using cached songs for: ${cacheKey}`);
+      return this.cache.get(cacheKey);
+    }
+
+    await DOMUtils.sleep(2000); // Increased initial wait
     
     const songs = [];
     const seenUrls = new Set();
@@ -17,10 +25,14 @@ export class SongExtractor {
     
     let previousCount = 0;
     let noNewCount = 0;
+    let consecutiveNoChange = 0;
     let attempts = 0;
-    const maxAttempts = 50;
+    const maxAttempts = 200; // Increased for large libraries
+    let lastScrollTop = scrollContainer.scrollTop;
     
+    // More aggressive scrolling for large lists
     while (attempts < maxAttempts) {
+      // Extract from current view
       const songRows = document.querySelectorAll('tr[class*="absolute"]');
       
       if (songRows.length === 0) {
@@ -30,50 +42,117 @@ export class SongExtractor {
       }
       
       const currentCount = songs.length;
-      this.logger?.debug(`Scroll ${attempts + 1}: ${currentCount} songs (${currentCount - previousCount} new)`);
+      const currentScrollTop = scrollContainer.scrollTop;
+      const currentScrollHeight = scrollContainer.scrollHeight;
+      const clientHeight = scrollContainer.clientHeight;
       
+      // Calculate if truly at bottom
+      const distanceFromBottom = currentScrollHeight - (currentScrollTop + clientHeight);
+      const isAtBottom = distanceFromBottom < 50;
+      
+      this.logger?.debug(`Scroll ${attempts + 1}: ${currentCount} songs (+${currentCount - previousCount}), bottom: ${distanceFromBottom}px`);
+      
+      // Track if we found new songs
       if (currentCount === previousCount) {
         noNewCount++;
-        if (noNewCount >= 3) break;
+        consecutiveNoChange++;
       } else {
         noNewCount = 0;
+        consecutiveNoChange = 0;
+      }
+      
+      // Only stop if we're REALLY at the bottom AND no new songs for multiple attempts
+      if (isAtBottom && noNewCount >= 5) {
+        this.logger?.info(`Stopping: At bottom with no new songs for ${noNewCount} attempts`);
+        break;
+      }
+      
+      // If scroll position hasn't changed for many attempts AND we're at bottom, stop
+      if (currentScrollTop === lastScrollTop && consecutiveNoChange >= 5 && isAtBottom) {
+        this.logger?.info('Stopping: Scroll position stuck at bottom');
+        break;
+      }
+      
+      // If we've had no new songs for a very long time, stop
+      if (noNewCount >= 10) {
+        this.logger?.info('Stopping: No new songs for 10 attempts');
+        break;
       }
       
       previousCount = currentCount;
-      scrollContainer.scrollBy(0, 1000);
-      await DOMUtils.sleep(800);
+      lastScrollTop = currentScrollTop;
+      
+      // Scroll down - use larger scroll for faster traversal
+      const scrollAmount = currentCount > 100 ? 2000 : 1000;
+      scrollContainer.scrollBy(0, scrollAmount);
+      
+      // Wait for content to load - longer wait for large lists
+      const waitTime = currentCount > 500 ? 1200 : 1000;
+      await DOMUtils.sleep(waitTime);
+      
       attempts++;
+      
+      // Progress indicator every 10 attempts
+      if (attempts % 10 === 0) {
+        this.logger?.info(`Progress: ${currentCount} songs found after ${attempts} scroll attempts`);
+      }
+    }
+    
+    if (attempts >= maxAttempts) {
+      this.logger?.warning(`Reached maximum scroll attempts (${maxAttempts})`);
     }
     
     scrollContainer.scrollTo(0, 0);
-    this.logger?.success(`Extracted ${songs.length} songs`);
+    this.logger?.success(`Extracted ${songs.length} songs in ${attempts} scroll attempts`);
+    
+    // Cache the results
+    this.cache.set(cacheKey, songs);
     
     return songs;
+  }
+
+  clearCache() {
+    this.cache.clear();
+    this.logger?.info('Song cache cleared');
+  }
+
+  getCacheSize() {
+    return this.cache.size;
   }
 
   _extractFromLinks(songs, seenUrls) {
     const songLinks = document.querySelectorAll('a[href*="/songs/"]');
     
     songLinks.forEach(link => {
-      if (!seenUrls.has(link.href)) {
-        const container = link.closest('tr, div[class*="group"]');
-        if (container) {
-          const song = this.extractSongData(container);
-          if (song?.url) {
-            seenUrls.add(song.url);
-            songs.push(song);
+      try {
+        if (!seenUrls.has(link.href)) {
+          const container = link.closest('tr, div[class*="group"], article, [class*="card"]');
+          if (container) {
+            const song = this.extractSongData(container);
+            if (song?.url) {
+              seenUrls.add(song.url);
+              songs.push(song);
+            }
           }
         }
+      } catch (error) {
+        // Skip problematic links but continue
+        this.logger?.debug('Skipped link due to error', { error: error.message });
       }
     });
   }
 
   _extractFromRows(rows, songs, seenUrls) {
     rows.forEach(row => {
-      const song = this.extractSongData(row);
-      if (song?.url && !seenUrls.has(song.url)) {
-        seenUrls.add(song.url);
-        songs.push(song);
+      try {
+        const song = this.extractSongData(row);
+        if (song?.url && !seenUrls.has(song.url)) {
+          seenUrls.add(song.url);
+          songs.push(song);
+        }
+      } catch (error) {
+        // Skip problematic rows but continue
+        this.logger?.debug('Skipped row due to error', { error: error.message });
       }
     });
   }
