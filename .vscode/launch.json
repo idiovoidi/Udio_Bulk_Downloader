@@ -1,0 +1,60 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Chrome Extension",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://www.udio.com/library",
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "userDataDir": "${workspaceFolder}/.chrome-debug-profile",
+      "runtimeArgs": [
+        "--disable-extensions-except=${workspaceFolder}/chrome_extension",
+        "--load-extension=${workspaceFolder}/chrome_extension"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Clear Chrome Debug Profile"
+    },
+    {
+      "name": "Attach to Chrome Extension",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "urlFilter": "https://www.udio.com/*",
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug Extension Popup",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "urlFilter": "chrome-extension://*",
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug Content Script",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "urlFilter": "https://www.udio.com/*",
+      "sourceMaps": true,
+      "pathMapping": {
+        "/": "${workspaceFolder}/chrome_extension"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Extension (Full)",
+      "configurations": [
+        "Launch Chrome Extension",
+        "Debug Extension Popup",
+        "Debug Content Script"
+      ],
+      "stopAll": true
+    }
+  ]
+}
