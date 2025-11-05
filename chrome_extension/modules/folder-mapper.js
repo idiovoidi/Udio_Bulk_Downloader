@@ -9,6 +9,7 @@ export class FolderMapper {
     this.songExtractor = new SongExtractor(logger);
     this.inProgress = false;
     this.structure = this._createEmptyStructure();
+    this.folderCache = new Map(); // Cache processed folders
   }
 
   _createEmptyStructure() {
@@ -94,7 +95,7 @@ export class FolderMapper {
 
   async _extractRootSongs() {
     this.logger?.info('Checking for root-level songs');
-    const rootSongs = await this.songExtractor.extractSongsFromView();
+    const rootSongs = await this.songExtractor.extractSongsFromView(null);
     
     if (rootSongs.length > 0) {
       this.logger?.success(`Found ${rootSongs.length} root songs`);
@@ -103,12 +104,19 @@ export class FolderMapper {
     }
   }
 
-  async _processFolderItem(item, parentPath, treeContainer) {
+  async _processFolderItem(item, parentPath) {
     const nameButton = item.querySelector('button[title]');
     if (!nameButton) return null;
 
     const folderName = nameButton.getAttribute('title');
     const currentPath = [...parentPath, folderName];
+    const cacheKey = currentPath.join('/');
+
+    // Check cache first
+    if (this.folderCache.has(cacheKey)) {
+      this.logger?.info(`Using cached folder: ${cacheKey}`);
+      return this.folderCache.get(cacheKey);
+    }
 
     const expandButton = item.querySelector('button[aria-label="Expand"]');
     const hasChildren = expandButton !== null;
@@ -128,6 +136,9 @@ export class FolderMapper {
     } else {
       await this._processLeafFolder(nameButton, folderData, currentPath);
     }
+
+    // Cache the result
+    this.folderCache.set(cacheKey, folderData);
 
     return folderData;
   }
@@ -161,12 +172,25 @@ export class FolderMapper {
     nameButton.click();
     await DOMUtils.sleep(2500);
 
-    const songs = await this.songExtractor.extractSongsFromView();
+    const songs = await this.songExtractor.extractSongsFromView(currentPath);
     songs.forEach(song => song.folderPath = currentPath);
 
     folderData.songs = songs;
     folderData.songCount = songs.length;
     this.structure.totalSongs += songs.length;
+  }
+
+  clearCache() {
+    this.folderCache.clear();
+    this.songExtractor.clearCache();
+    this.logger?.info('All caches cleared');
+  }
+
+  getCacheStats() {
+    return {
+      folders: this.folderCache.size,
+      songs: this.songExtractor.getCacheSize()
+    };
   }
 
   _sendProgressUpdate() {

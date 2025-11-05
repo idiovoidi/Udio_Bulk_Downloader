@@ -29,6 +29,20 @@ This directory contains comprehensive documentation for the modular Chrome exten
   - Communication patterns
   - Performance considerations
 
+### Performance & Optimization
+
+- **[CACHING_SYSTEM.md](CACHING_SYSTEM.md)**
+  - Caching implementation
+  - Cache management
+  - Performance benefits
+  - Usage guide
+
+- **[PERFORMANCE_IMPROVEMENTS.md](PERFORMANCE_IMPROVEMENTS.md)**
+  - Performance metrics
+  - Scroll optimization
+  - Before/after comparison
+  - Troubleshooting
+
 ### Comparison & Migration
 
 - **[COMPARISON.md](COMPARISON.md)**

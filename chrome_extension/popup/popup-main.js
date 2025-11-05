@@ -20,7 +20,9 @@ const elements = {
   clearLogs: document.getElementById('clearLogs'),
   logsView: document.getElementById('logsView'),
   logsContent: document.getElementById('logsContent'),
-  logStats: document.getElementById('logStats')
+  logStats: document.getElementById('logStats'),
+  cacheStats: document.getElementById('cacheStats'),
+  clearCache: document.getElementById('clearCache')
 };
 
 // Initialize controller
