@@ -1,5 +1,7 @@
-# Chrome debug profile
+# Browser debug profiles
 .chrome-debug-profile/
+.chrome-debug-persistent/
+.edge-debug-persistent/
 
 # Node modules (if added later)
 node_modules/

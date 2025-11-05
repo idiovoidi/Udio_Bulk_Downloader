@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "msjsdiag.debugger-for-chrome",
+    "ms-edgedevtools.vscode-edge-devtools",
     "ms-vscode.vscode-typescript-next"
   ]
 }

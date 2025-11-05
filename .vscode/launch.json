@@ -2,18 +2,76 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Chrome Extension",
+      "name": "Launch Chrome Extension (Temp Profile)",
       "type": "chrome",
       "request": "launch",
       "url": "https://www.udio.com/library",
       "webRoot": "${workspaceFolder}/chrome_extension",
       "userDataDir": "${workspaceFolder}/.chrome-debug-profile",
+      "runtimeExecutable": "chrome",
       "runtimeArgs": [
         "--disable-extensions-except=${workspaceFolder}/chrome_extension",
         "--load-extension=${workspaceFolder}/chrome_extension"
       ],
       "sourceMaps": true,
       "preLaunchTask": "Clear Chrome Debug Profile"
+    },
+    {
+      "name": "Launch Chrome Extension (Keep Login)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://www.udio.com/library",
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "userDataDir": "${workspaceFolder}/.chrome-debug-persistent",
+      "runtimeExecutable": "chrome",
+      "runtimeArgs": [
+        "--disable-extensions-except=${workspaceFolder}/chrome_extension",
+        "--load-extension=${workspaceFolder}/chrome_extension"
+      ],
+      "sourceMaps": true
+    },
+    {
+      "name": "Launch Chrome Extension (Your Default Profile)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://www.udio.com/library",
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "runtimeExecutable": "chrome",
+      "runtimeArgs": [
+        "--load-extension=${workspaceFolder}/chrome_extension"
+      ],
+      "sourceMaps": true
+    },
+    {
+      "name": "Launch Edge Extension (Keep Login)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://www.udio.com/library",
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "userDataDir": "${workspaceFolder}/.edge-debug-persistent",
+      "runtimeArgs": [
+        "--disable-extensions-except=${workspaceFolder}/chrome_extension",
+        "--load-extension=${workspaceFolder}/chrome_extension"
+      ],
+      "sourceMaps": true
+    },
+    {
+      "name": "Attach to Chrome (Your Profile)",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "urlFilter": "https://www.udio.com/*",
+      "sourceMaps": true
+    },
+    {
+      "name": "Attach to Edge (Your Profile)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/chrome_extension",
+      "urlFilter": "https://www.udio.com/*",
+      "sourceMaps": true
     },
     {
       "name": "Attach to Chrome Extension",
@@ -48,9 +106,18 @@
   ],
   "compounds": [
     {
-      "name": "Debug Extension (Full)",
+      "name": "Debug Extension (Full - Temp)",
       "configurations": [
-        "Launch Chrome Extension",
+        "Launch Chrome Extension (Temp Profile)",
+        "Debug Extension Popup",
+        "Debug Content Script"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Debug Extension (Full - Keep Login)",
+      "configurations": [
+        "Launch Chrome Extension (Keep Login)",
         "Debug Extension Popup",
         "Debug Content Script"
       ],

@@ -62,15 +62,29 @@ python -m udio_downloader download --output ./downloads --concurrent 3
 ## Development
 
 ### Debugging the Extension
+
+**Option 1: Use Your Actual Chrome Profile (Recommended)** ⭐
 ```bash
-# Quick start
-1. Press F5 in VS Code
-2. Select "Launch Chrome Extension"
-3. Set breakpoints
-4. Debug!
+1. Close all Chrome windows
+2. Press F5 in VS Code
+3. Select "Launch Chrome Extension (Your Default Profile)"
+4. Already logged in to Udio! ✅
+5. Debug with your actual profile!
 ```
 
-See **[DEBUGGING_QUICKSTART.md](DEBUGGING_QUICKSTART.md)** for complete guide.
+**Option 2: Separate Profile (Keep Chrome Open)**
+```bash
+1. Press F5 in VS Code
+2. Select "Launch Chrome Extension (Keep Login)"
+3. Log in to Udio (first time only)
+4. Debug! (login persists across sessions ✅)
+```
+
+**Guides:**
+- **[USE_YOUR_CHROME_PROFILE.md](USE_YOUR_CHROME_PROFILE.md)** - Use your actual Chrome profile ⭐
+- **[STAY_LOGGED_IN.md](STAY_LOGGED_IN.md)** - Stay logged in while debugging
+- **[DEBUGGING_QUICKSTART.md](DEBUGGING_QUICKSTART.md)** - Quick start guide
+- **[BROWSER_DEBUGGING.md](BROWSER_DEBUGGING.md)** - Browser options
 
 ### Project Structure
 ```

@@ -17,29 +17,41 @@ VS Code will prompt you to install the recommended extension:
 
 ### 3. Press F5
 - Press **F5** in VS Code
-- Select **"Launch Chrome Extension"** from dropdown
+- Select **"Launch Chrome Extension (Keep Login)"** ⭐ from dropdown
 - Chrome will open with the extension loaded
 
-### 4. Set Breakpoints
+### 4. Log In (First Time Only)
+- Chrome opens at udio.com/library
+- Log in to Udio
+- **Your login persists across debug sessions!** ✅
+
+### 5. Set Breakpoints
 - Open any file (e.g., `chrome_extension/modules/folder-mapper.js`)
 - Click left margin to set breakpoint (red dot)
 - Or press **F9** on a line
 
-### 5. Use Extension
-- Chrome opens at udio.com/library
+### 6. Use Extension
 - Click extension icon
 - Click "Map Library Structure"
 - **Breakpoint hits in VS Code!** 🎯
 
+## Stay Logged In! 🔐
+
+Use **"Launch Chrome Extension (Keep Login)"** to stay logged in to Udio across debug sessions.
+
+See **[DEBUGGING_WITH_YOUR_PROFILE.md](DEBUGGING_WITH_YOUR_PROFILE.md)** for more options.
+
 ## Debug Configurations
 
-| Config | Use Case | How to Start |
-|--------|----------|--------------|
-| **Launch Chrome Extension** | Start fresh | F5 → Select this |
-| **Attach to Chrome Extension** | Chrome already running | F5 → Select this |
-| **Debug Extension Popup** | Debug popup.js | F5 → Select this |
-| **Debug Content Script** | Debug content scripts | F5 → Select this |
-| **Debug Extension (Full)** | Debug everything | F5 → Select this |
+| Config | Use Case | Login Persists |
+|--------|----------|----------------|
+| **Launch Chrome Extension (Keep Login)** ⭐ | Rapid debugging | ✅ Yes |
+| **Launch Chrome Extension (Temp Profile)** | Clean slate | ❌ No |
+| **Attach to Chrome (Your Profile)** | Use actual profile | ✅ Yes |
+| **Debug Extension Popup** | Debug popup.js | - |
+| **Debug Content Script** | Debug content scripts | - |
+
+**Recommended:** Use **"Launch Chrome Extension (Keep Login)"** to stay logged in!
 
 ## Common Debugging Tasks
 
