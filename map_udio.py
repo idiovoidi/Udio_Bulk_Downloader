@@ -40,7 +40,7 @@ async def main():
         # Navigate to library
         logger.info("Navigating to Udio library...")
         try:
-            await page.goto('https://www.udio.com/my-creations', timeout=30000)
+            await page.goto('https://www.udio.com/library', timeout=30000)
         except:
             pass
         

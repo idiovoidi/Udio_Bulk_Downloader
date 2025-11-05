@@ -65,9 +65,24 @@ class UdioFolderMapper:
     
     async def process_item(self, item, parent_path=[]):
         """Process a folder item"""
-        # Get folder name
+        # Get folder name - try both selectors
         name_button = await item.query_selector('button[title]')
+        if not name_button:
+            # Try alternative selector for nested folders
+            name_button = await item.query_selector('button span')
+        
+        if not name_button:
+            return None
+        
+        # Get folder name from title attribute or text content
         folder_name = await name_button.get_attribute('title')
+        if not folder_name:
+            folder_name = await name_button.text_content()
+            folder_name = folder_name.strip() if folder_name else None
+        
+        if not folder_name:
+            return None
+        
         current_path = parent_path + [folder_name]
         path_str = '/'.join(current_path)
         
@@ -79,10 +94,15 @@ class UdioFolderMapper:
                 print(f"  [CACHED] {path_str}")
             return self.cache[path_str]
         
-        # Check if folder has children
+        # Check if folder has children (expand button)
         expand_button = await item.query_selector('button[aria-label="Expand"]')
-        has_children = expand_button is not None
+        has_expand_button = expand_button is not None
         
+        # Also check for nested folder divs (alternative structure)
+        nested_folders = await item.query_selector_all('.group\\/folder')
+        has_nested_folders = len(nested_folders) > 0
+        
+        has_children = has_expand_button or has_nested_folders
         is_expanded = await item.get_attribute('aria-expanded') == 'true'
         
         folder_data = {
@@ -95,7 +115,11 @@ class UdioFolderMapper:
         }
         
         if has_children:
-            await self._process_parent_folder(item, expand_button, is_expanded, folder_data, current_path)
+            if has_expand_button:
+                await self._process_parent_folder(item, expand_button, is_expanded, folder_data, current_path)
+            else:
+                # Process nested folders directly
+                await self._process_nested_folders(item, folder_data, current_path)
         else:
             await self._process_leaf_folder(name_button, folder_data, current_path)
         
@@ -128,6 +152,18 @@ class UdioFolderMapper:
         if not is_expanded:
             await expand_button.click()
             await asyncio.sleep(0.2)
+    
+    async def _process_nested_folders(self, item, folder_data, current_path):
+        """Process nested folders without expand button"""
+        # Find all nested folder divs
+        nested_folders = await item.query_selector_all('.group\\/folder')
+        
+        for nested_folder in nested_folders:
+            # Each nested folder is a separate item to process
+            child_data = await self.process_item(nested_folder, current_path)
+            if child_data:
+                folder_data['subfolders'].append(child_data)
+                folder_data['songCount'] += child_data['songCount']
     
     async def _process_leaf_folder(self, name_button, folder_data, current_path):
         """Process a leaf folder (no subfolders)"""
