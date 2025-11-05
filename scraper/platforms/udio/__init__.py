@@ -2,8 +2,8 @@
 Udio platform scraping components.
 """
 
-from .mapper import UdioFolderMapper
-from .extractors import UdioSongExtractor
+from .mapper_async import UdioFolderMapper
+from .extractors_async import UdioSongExtractor
 
 __all__ = [
     'UdioFolderMapper',

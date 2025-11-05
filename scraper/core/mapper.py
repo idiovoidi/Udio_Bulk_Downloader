@@ -6,33 +6,33 @@ from abc import ABC, abstractmethod
 
 
 class BaseMapper(ABC):
-    """Base class for mapping hierarchical structures"""
+    """Base class for mapping hierarchical structures (async)"""
     
-    def __init__(self, driver, logger=None):
-        self.driver = driver
+    def __init__(self, page, logger=None):
+        self.page = page
         self.logger = logger
         self.cache = {}
         self.total_items = 0
     
     @abstractmethod
-    def find_container(self):
+    async def find_container(self):
         """Find the main container element"""
         pass
     
     @abstractmethod
-    def get_top_level_items(self, container):
+    async def get_top_level_items(self, container):
         """Get top-level items from container"""
         pass
     
     @abstractmethod
-    def process_item(self, item, parent_path=[]):
+    async def process_item(self, item, parent_path=[]):
         """Process a single item (folder, category, etc.)"""
         pass
     
-    def map_structure(self):
+    async def map_structure(self):
         """Map entire structure"""
-        container = self.find_container()
-        items = self.get_top_level_items(container)
+        container = await self.find_container()
+        items = await self.get_top_level_items(container)
         
         structure = {
             'items': [],
@@ -42,7 +42,7 @@ class BaseMapper(ABC):
         
         for i, item in enumerate(items, 1):
             print(f"\n[{i}/{len(items)}] Processing item...")
-            item_data = self.process_item(item, [])
+            item_data = await self.process_item(item, [])
             
             if item_data:
                 structure['items'].append(item_data)
