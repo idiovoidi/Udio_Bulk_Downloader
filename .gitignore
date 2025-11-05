@@ -1,44 +1,13 @@
-# Browser debug profiles
-.chrome-debug-profile/
-.chrome-debug-persistent/
-.edge-debug-persistent/
-
-# Node modules (if added later)
-node_modules/
-
-# Build output (if added later)
-dist/
-build/
-
-ui_analysis
-
-# IDE
-.vscode/settings.json
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.temp
+# Output directories
+output/
+logs/
+downloads/
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-env/
-venv/
-ENV/
-.venv
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -56,33 +25,25 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Unit test / coverage
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Session data
+.udio_downloader/
+
+# Old files
+map_folders_simple.py
+udio_library_structure.json
