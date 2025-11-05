@@ -1,4 +1,4 @@
-// Folder tree mapping logic
+// Folder tree mapping logic (MV3 compliant - runs in content script)
 import { DOMUtils } from './dom-utils.js';
 import { SongExtractor } from './song-extractor.js';
 
@@ -6,10 +6,11 @@ export class FolderMapper {
   constructor(logger, storage) {
     this.logger = logger;
     this.storage = storage;
-    this.songExtractor = new SongExtractor(logger);
+    this.songExtractor = new SongExtractor(logger, storage);
     this.inProgress = false;
     this.structure = this._createEmptyStructure();
     this.folderCache = new Map(); // Cache processed folders
+    this.processedFolderPaths = new Set(); // Track processed paths for deduplication
   }
 
   _createEmptyStructure() {
@@ -18,33 +19,65 @@ export class FolderMapper {
       rootSongs: [],
       totalFolders: 0,
       mappedFolders: 0,
-      totalSongs: 0
+      totalSongs: 0,
+      scanStartTime: null,
+      scanEndTime: null
     };
   }
 
-  async startMapping() {
+  /**
+   * Start mapping with resume capability (idempotent)
+   * @param {boolean} resume - Whether to resume from saved state
+   */
+  async startMapping(resume = true) {
     if (this.inProgress) {
       this.logger?.warning('Mapping already in progress');
       return;
     }
 
     this.inProgress = true;
-    this.structure = this._createEmptyStructure();
+    
+    // Try to resume from saved state
+    let resumedState = null;
+    if (resume) {
+      resumedState = await this.storage.loadContentState();
+      if (resumedState && resumedState.inProgress) {
+        this.structure = resumedState.structure;
+        this.logger?.info('Resuming from saved state', {
+          mappedFolders: this.structure.mappedFolders,
+          totalFolders: this.structure.totalFolders
+        });
+      }
+    }
+
+    // Initialize new scan if not resuming
+    if (!resumedState) {
+      this.structure = this._createEmptyStructure();
+      this.structure.scanStartTime = Date.now();
+    }
     
     this.logger?.info('Starting folder tree mapping');
 
     try {
       const treeContainer = await this._findTreeContainer();
       const topLevelItems = Array.from(treeContainer.children);
-      this.structure.totalFolders = topLevelItems.length;
+      
+      // Update total if not resuming
+      if (!resumedState) {
+        this.structure.totalFolders = topLevelItems.length;
+      }
 
       this.logger?.info(`Found ${topLevelItems.length} top-level folders`);
 
-      // Extract root-level songs
-      await this._extractRootSongs();
+      // Extract root-level songs (skip if already done)
+      if (!resumedState || this.structure.rootSongs.length === 0) {
+        await this._extractRootSongs();
+      }
 
-      // Process each top-level folder
-      for (let i = 0; i < topLevelItems.length; i++) {
+      // Process each top-level folder (resume from where we left off)
+      const startIndex = resumedState ? this.structure.mappedFolders : 0;
+      
+      for (let i = startIndex; i < topLevelItems.length; i++) {
         const item = topLevelItems[i];
         this.logger?.info(`Processing folder ${i + 1}/${topLevelItems.length}`);
 
@@ -55,21 +88,38 @@ export class FolderMapper {
             songs: folderData.songs?.length || 0,
             subfolders: folderData.subfolders?.length || 0
           });
-          this.structure.folders.push(folderData);
+          
+          // Check for duplicates before adding
+          const pathKey = folderData.path.join('/');
+          if (!this.processedFolderPaths.has(pathKey)) {
+            this.structure.folders.push(folderData);
+            this.processedFolderPaths.add(pathKey);
+          } else {
+            this.logger?.warning(`Skipping duplicate folder: ${pathKey}`);
+          }
         }
 
         this.structure.mappedFolders = i + 1;
+        
+        // Save state periodically for resume capability
         await this.storage.saveContentState({
           inProgress: this.inProgress,
           structure: this.structure
         });
 
         this._sendProgressUpdate();
+        
+        // Yield to browser to prevent blocking
+        await DOMUtils.sleep(10);
       }
+
+      this.structure.scanEndTime = Date.now();
+      const duration = (this.structure.scanEndTime - this.structure.scanStartTime) / 1000;
 
       this.logger?.success('Mapping complete!', {
         totalFolders: this.structure.totalFolders,
-        totalSongs: this.structure.totalSongs
+        totalSongs: this.structure.totalSongs,
+        durationSeconds: duration.toFixed(1)
       });
 
       this._sendCompletionMessage();
@@ -78,6 +128,14 @@ export class FolderMapper {
     } catch (error) {
       this.logger?.error('Mapping failed', { error: error.message });
       this._sendErrorMessage(error.message);
+      
+      // Save state even on error for resume
+      await this.storage.saveContentState({
+        inProgress: false,
+        structure: this.structure,
+        error: error.message
+      });
+      
       throw error;
     } finally {
       this.inProgress = false;

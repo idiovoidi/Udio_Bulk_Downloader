@@ -149,6 +149,10 @@
     🔍 Dump Tree Structure (Debug)
   </button>
   
+  <button id="exportMetadata" class="primary" disabled style="background: #00897b;">
+    📦 Export Metadata (JSON)
+  </button>
+  
   <button id="exportChecklist" class="primary" disabled style="background: #7b1fa2;">
     📋 Export Song Checklist
   </button>
@@ -158,7 +162,7 @@
   </button>
   
   <button id="exportJson" class="secondary" disabled>
-    💾 Export as JSON
+    💾 Export as JSON (Legacy)
   </button>
   
   <button id="exportText" class="secondary" disabled>
@@ -187,6 +191,11 @@
   <div id="results" class="results" style="display: none;">
     <h3>Library Structure:</h3>
     <div id="resultsContent"></div>
+  </div>
+  
+  <div id="exportStats" class="results" style="display: none; background: #e8f5e9;">
+    <h3>📊 Export Statistics:</h3>
+    <div id="exportStatsContent"></div>
   </div>
   
   <div id="logsView" class="results" style="display: none; max-height: 300px;">

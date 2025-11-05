@@ -77,6 +77,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       inProgress: mappingInProgress,
       structure: currentStructure
     });
+  } else if (request.action === 'exportMetadata') {
+    // Export metadata with incremental update support
+    exportMetadataWithIncrementalSupport(request.structure).then(result => {
+      sendResponse(result);
+    });
+    return true; // Async response
   } else if (request.action === 'downloadSong') {
     // Download a single song
     downloadSong(request.song);
@@ -404,13 +410,18 @@ function extractSongFromElement(element) {
       title: null,
       url: null,
       id: null,
+      artist: null,
       duration: null,
+      createdDate: null,
       imageUrl: null,
+      lyricsAvailable: false,
       tags: [],
       plays: null,
       likes: null,
       isLiked: false,
-      isDisliked: false
+      isDisliked: false,
+      metadataCollectedAt: new Date().toISOString(),
+      metadataHash: null
     };
     
     // Find title (in h4 tag)
@@ -450,6 +461,16 @@ function extractSongFromElement(element) {
       song.tags.push(tag.textContent.trim());
     });
     
+    // Find artist (look for user links or artist text)
+    const artistLink = element.querySelector('a[href*="/users/"]');
+    if (artistLink) {
+      song.artist = artistLink.textContent.trim();
+    }
+    
+    // Check for lyrics availability
+    const lyricsIcon = element.querySelector('svg.lucide-file-text');
+    song.lyricsAvailable = lyricsIcon !== null;
+    
     // Find play count and likes
     const svgIcons = element.querySelectorAll('svg.lucide-play, svg.lucide-thumbs-up');
     svgIcons.forEach(svg => {
@@ -465,6 +486,9 @@ function extractSongFromElement(element) {
         }
       }
     });
+    
+    // Generate metadata hash
+    song.metadataHash = generateMetadataHash(song);
     
     // Check if song is liked (thumbs-up button is filled/active)
     // Look for the thumbs-up button and check if it's in a liked state
@@ -647,3 +671,301 @@ async function downloadSong(song) {
 
 // Log when script loads
 console.log('Folder mapper ready. Waiting for mapping command...');
+
+
+// ============================================================================
+// METADATA EXPORT WITH INCREMENTAL UPDATE SUPPORT
+// ============================================================================
+
+/**
+ * Export metadata with incremental update detection
+ */
+async function exportMetadataWithIncrementalSupport(structure) {
+  try {
+    logger.info('Preparing metadata export with incremental support');
+    
+    // Load seen songs cache
+    const result = await chrome.storage.local.get(['seenSongsCache']);
+    const seenCache = result.seenSongsCache || {};
+    
+    // Flatten folder tree
+    const folders = flattenFolders(structure.folders || structure.rootFolders || []);
+    
+    // Extract all songs with incremental detection
+    const songs = extractAllSongsWithIncrementalInfo(structure, seenCache);
+    
+    // Extract tag relationships
+    const tags = extractAllTags(songs);
+    
+    // Update seen cache
+    const newCache = {};
+    songs.forEach(song => {
+      newCache[song.id] = {
+        hash: song.metadataHash,
+        lastSeen: song.metadataCollectedAt
+      };
+    });
+    await chrome.storage.local.set({ 
+      seenSongsCache: newCache,
+      lastScanTimestamp: Date.now()
+    });
+    
+    // Calculate statistics
+    const stats = {
+      totalFolders: folders.length,
+      totalSongs: songs.length,
+      newSongs: songs.filter(s => s.isNew).length,
+      changedSongs: songs.filter(s => s.isChanged).length,
+      unchangedSongs: songs.filter(s => !s.isNew && !s.isChanged).length
+    };
+    
+    logger.success('Export prepared', stats);
+    
+    // Prepare export data
+    const exportData = {
+      exportVersion: '2.0',
+      exportDate: new Date().toISOString(),
+      statistics: stats,
+      folders: folders,
+      songs: songs.map(s => sanitizeSongForExport(s)),
+      tags: tags
+    };
+    
+    // Trigger download
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+      type: 'application/json' 
+    });
+    const url = URL.createObjectURL(blob);
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `udio_metadata_${timestamp}.json`;
+    
+    chrome.downloads.download({
+      url: url,
+      filename: filename,
+      saveAs: true
+    }, (downloadId) => {
+      if (chrome.runtime.lastError) {
+        logger.error('Export download failed', { 
+          error: chrome.runtime.lastError.message 
+        });
+      } else {
+        logger.success('Export download started', { downloadId, filename });
+      }
+      
+      // Clean up blob URL
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    
+    return {
+      status: 'success',
+      stats: stats
+    };
+    
+  } catch (error) {
+    logger.error('Export failed', { error: error.message });
+    return {
+      status: 'error',
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Flatten folder tree into array with stable IDs
+ */
+function flattenFolders(folders, parentId = null, parentPath = []) {
+  const flattened = [];
+  
+  folders.forEach(folder => {
+    const currentPath = [...parentPath, folder.name];
+    const folderId = generateFolderId(currentPath);
+    
+    const flatFolder = {
+      id: folderId,
+      name: folder.name,
+      parentId: parentId,
+      path: currentPath,
+      songCount: folder.songCount || 0,
+      hasChildren: (folder.subfolders && folder.subfolders.length > 0)
+    };
+    
+    flattened.push(flatFolder);
+    
+    // Recursively flatten subfolders
+    if (folder.subfolders && folder.subfolders.length > 0) {
+      const subfolders = flattenFolders(
+        folder.subfolders,
+        folderId,
+        currentPath
+      );
+      flattened.push(...subfolders);
+    }
+  });
+  
+  return flattened;
+}
+
+/**
+ * Generate stable folder ID from path
+ */
+function generateFolderId(path) {
+  const pathString = path.join('/');
+  return simpleHash(pathString);
+}
+
+/**
+ * Extract all songs with incremental detection
+ */
+function extractAllSongsWithIncrementalInfo(structure, seenCache) {
+  const songs = [];
+  
+  // Extract root songs
+  if (structure.rootSongs && structure.rootSongs.length > 0) {
+    structure.rootSongs.forEach(song => {
+      const enrichedSong = enrichSongWithIncrementalInfo(song, null, seenCache);
+      songs.push(enrichedSong);
+    });
+  }
+  
+  // Extract songs from folders recursively
+  const extractFromFolders = (folders, parentPath = []) => {
+    folders.forEach(folder => {
+      const currentPath = [...parentPath, folder.name];
+      const folderId = generateFolderId(currentPath);
+      
+      if (folder.songs && folder.songs.length > 0) {
+        folder.songs.forEach(song => {
+          const enrichedSong = enrichSongWithIncrementalInfo(song, folderId, seenCache);
+          songs.push(enrichedSong);
+        });
+      }
+      
+      if (folder.subfolders && folder.subfolders.length > 0) {
+        extractFromFolders(folder.subfolders, currentPath);
+      }
+    });
+  };
+  
+  const rootFolders = structure.folders || structure.rootFolders || [];
+  if (rootFolders.length > 0) {
+    extractFromFolders(rootFolders);
+  }
+  
+  return songs;
+}
+
+/**
+ * Enrich song with incremental update information
+ */
+function enrichSongWithIncrementalInfo(song, folderId, seenCache) {
+  const cached = seenCache[song.id];
+  
+  // Generate metadata hash if not present
+  if (!song.metadataHash) {
+    song.metadataHash = generateMetadataHash(song);
+  }
+  
+  // Add metadata collection timestamp if not present
+  if (!song.metadataCollectedAt) {
+    song.metadataCollectedAt = new Date().toISOString();
+  }
+  
+  return {
+    ...song,
+    folderId: folderId,
+    isNew: !cached,
+    isChanged: cached && cached.hash !== song.metadataHash
+  };
+}
+
+/**
+ * Generate metadata hash for change detection
+ */
+function generateMetadataHash(song) {
+  const hashData = {
+    title: song.title,
+    artist: song.artist,
+    duration: song.duration,
+    isLiked: song.isLiked,
+    isDisliked: song.isDisliked,
+    plays: song.plays,
+    likes: song.likes,
+    tags: song.tags?.sort().join(','),
+    lyricsAvailable: song.lyricsAvailable
+  };
+  
+  const hashString = JSON.stringify(hashData);
+  return simpleHash(hashString);
+}
+
+/**
+ * Sanitize song for export (stable IDs only, no transient URLs)
+ */
+function sanitizeSongForExport(song) {
+  return {
+    // Stable ID (primary key)
+    id: song.id,
+    
+    // Core metadata
+    title: song.title,
+    artist: song.artist,
+    duration: song.duration,
+    createdDate: song.createdDate,
+    
+    // Folder reference
+    folderId: song.folderId,
+    
+    // User interaction data
+    isLiked: song.isLiked,
+    isDisliked: song.isDisliked,
+    playCount: song.plays,
+    likesCount: song.likes,
+    
+    // Content flags
+    lyricsAvailable: song.lyricsAvailable,
+    
+    // Metadata tracking
+    metadataHash: song.metadataHash,
+    metadataCollectedAt: song.metadataCollectedAt,
+    
+    // Incremental update flags
+    isNew: song.isNew,
+    isChanged: song.isChanged
+    
+    // NOTE: Transient URLs (song URL, image URL) are NOT exported
+  };
+}
+
+/**
+ * Extract all tag relationships
+ */
+function extractAllTags(songs) {
+  const tags = [];
+  
+  songs.forEach(song => {
+    if (song.tags && song.tags.length > 0) {
+      song.tags.forEach(tag => {
+        tags.push({
+          songId: song.id,
+          tag: tag
+        });
+      });
+    }
+  });
+  
+  return tags;
+}
+
+/**
+ * Simple hash function for generating stable IDs
+ */
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}

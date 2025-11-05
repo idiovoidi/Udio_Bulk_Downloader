@@ -89,6 +89,7 @@ function displayResults(data) {
   resultsDiv.style.display = 'block';
   
   // Enable export buttons
+  exportMetadataButton.disabled = false;
   exportJsonButton.disabled = false;
   exportTextButton.disabled = false;
 }
@@ -643,14 +644,86 @@ async function clearLogs() {
   }
 }
 
+// Export metadata using MetadataExporter
+async function exportMetadata() {
+  if (!libraryData) {
+    updateStatus('Please map the library first', 'error');
+    return;
+  }
+  
+  updateStatus('Preparing metadata export...', 'info');
+  const exportMetadataButton = document.getElementById('exportMetadata');
+  exportMetadataButton.disabled = true;
+  
+  try {
+    // Get active tab to send message to content script
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    if (!tab.url.includes('udio.com')) {
+      updateStatus('Please navigate to Udio.com', 'error');
+      exportMetadataButton.disabled = false;
+      return;
+    }
+    
+    // Request export from content script
+    const response = await chrome.tabs.sendMessage(tab.id, { 
+      action: 'exportMetadata',
+      structure: libraryData
+    });
+    
+    if (response && response.status === 'success') {
+      // Display export statistics
+      displayExportStats(response.stats);
+      updateStatus('✓ Metadata exported successfully!', 'success');
+    } else {
+      updateStatus('Export failed', 'error');
+    }
+    
+  } catch (error) {
+    console.error('Export error:', error);
+    updateStatus(`Error: ${error.message}`, 'error');
+  } finally {
+    exportMetadataButton.disabled = false;
+  }
+}
+
+// Display export statistics
+function displayExportStats(stats) {
+  const statsDiv = document.getElementById('exportStats');
+  const statsContent = document.getElementById('exportStatsContent');
+  
+  let html = '<ul>';
+  html += `<li><strong>Total Songs:</strong> ${stats.totalSongs}</li>`;
+  html += `<li><strong>New Songs:</strong> ${stats.newSongs} 🆕</li>`;
+  html += `<li><strong>Changed Songs:</strong> ${stats.changedSongs} 🔄</li>`;
+  html += `<li><strong>Unchanged Songs:</strong> ${stats.unchangedSongs}</li>`;
+  html += `<li><strong>Total Folders:</strong> ${stats.totalFolders}</li>`;
+  html += '</ul>';
+  
+  if (stats.newSongs > 0 || stats.changedSongs > 0) {
+    html += '<p style="margin: 10px 0 0 0; padding: 8px; background: #fff3e0; border-radius: 3px; font-size: 12px;">';
+    html += '💡 <strong>Incremental Update:</strong> Only new and changed songs will be processed during download.';
+    html += '</p>';
+  } else {
+    html += '<p style="margin: 10px 0 0 0; padding: 8px; background: #e3f2fd; border-radius: 3px; font-size: 12px;">';
+    html += '✓ No changes detected since last export.';
+    html += '</p>';
+  }
+  
+  statsContent.innerHTML = html;
+  statsDiv.style.display = 'block';
+}
+
 // Event listeners
 const dumpButton = document.getElementById('dumpStructure');
+const exportMetadataButton = document.getElementById('exportMetadata');
 const viewLogsButton = document.getElementById('viewLogs');
 const exportLogsButton = document.getElementById('exportLogs');
 const clearLogsButton = document.getElementById('clearLogs');
 
 mapButton.addEventListener('click', mapLibrary);
 dumpButton.addEventListener('click', dumpTreeStructure);
+exportMetadataButton.addEventListener('click', exportMetadata);
 exportChecklistButton.addEventListener('click', exportSongChecklist);
 downloadButton.addEventListener('click', downloadAllSongs);
 exportJsonButton.addEventListener('click', exportAsJson);
