@@ -2,13 +2,13 @@
 Map a single Udio folder recursively (including subfolders).
 
 Usage:
-Run: python map_folder_recursive.py
+Run: python -m udio_downloader.dev_tools.map_folder_recursive
 """
 
 import asyncio
-from scraper.core import BrowserConnection
-from scraper.platforms.udio.mapper_async import UdioFolderMapper
-from scraper.utils import OutputFormatter, get_logger, PathManager
+from udio_downloader.dev_tools.scraper.core import BrowserConnection
+from udio_downloader.dev_tools.scraper.platforms.udio.mapper_async import UdioFolderMapper
+from udio_downloader.dev_tools.scraper.utils import OutputFormatter, get_logger, PathManager
 
 
 async def main():

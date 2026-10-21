@@ -2,13 +2,13 @@
 Inspect a single song to find download URL pattern.
 
 Usage:
-Run: python inspect_song.py
+Run: python -m udio_downloader.dev_tools.inspect_song
 """
 
 import asyncio
 import json
-from scraper.core import BrowserConnection
-from scraper.utils import get_logger, PathManager
+from udio_downloader.dev_tools.scraper.core import BrowserConnection
+from udio_downloader.dev_tools.scraper.utils import get_logger, PathManager
 
 
 async def main():

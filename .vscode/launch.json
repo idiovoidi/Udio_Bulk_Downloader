@@ -10,7 +10,7 @@
       "justMyCode": false
     },
     {
-      "name": "Python: Udio Status",
+      "name": "udio_downloader: status",
       "type": "debugpy",
       "request": "launch",
       "module": "udio_downloader",
@@ -19,37 +19,33 @@
       "justMyCode": false
     },
     {
-      "name": "Python: Udio Import Test Data",
+      "name": "udio_downloader: download (visible browser)",
       "type": "debugpy",
       "request": "launch",
       "module": "udio_downloader",
-      "args": ["import-metadata", "--json-file", "test_metadata.json"],
+      "args": ["download", "--no-headless"],
       "console": "integratedTerminal",
       "justMyCode": false
     },
     {
-      "name": "Python: Test Full Workflow",
+      "name": "udio_downloader: import-metadata (prompt for file)",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/test_full_workflow.py",
+      "module": "udio_downloader",
+      "args": ["import-metadata", "--json-file", "${input:exportFile}"],
       "console": "integratedTerminal",
       "justMyCode": false
     },
     {
-      "name": "Python: Scrape Udio (Debug)",
+      "name": "dev_tools: map_folder_recursive",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/scrape_udio_simple.py",
-      "console": "integratedTerminal",
-      "justMyCode": false
-    },
-    {
-      "name": "Python: Scrape Udio (Full)",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/scrape_udio_library.py",
+      "module": "udio_downloader.dev_tools.map_folder_recursive",
       "console": "integratedTerminal",
       "justMyCode": false
     }
+  ],
+  "inputs": [
+    { "id": "exportFile", "type": "promptString", "description": "Path to udio_metadata_<date>.json" }
   ]
 }

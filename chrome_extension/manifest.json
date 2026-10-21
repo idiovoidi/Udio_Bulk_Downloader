@@ -22,7 +22,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.udio.com/*"],
-      "js": ["logger.js", "content_v3.js"],
+      "js": ["logger.js", "content.js"],
       "run_at": "document_idle"
     }
   ],

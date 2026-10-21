@@ -11,7 +11,7 @@ class BrowserConnection:
     """Manages Playwright browser connection with persistent context"""
     
     def __init__(self, user_data_dir=None, headless=False):
-        # Use same profile as simple_logger.py
+        # Shares the profile used by the downloader (udio_downloader.config)
         self.user_data_dir = Path(user_data_dir) if user_data_dir else Path.home() / '.udio_downloader' / 'browser_profile'
         self.headless = headless
         self.playwright = None

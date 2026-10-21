@@ -2,13 +2,13 @@
 Map a single Udio folder for testing.
 
 Usage:
-Run: python map_single_folder.py
+Run: python -m udio_downloader.dev_tools.map_single_folder
 """
 
 import asyncio
-from scraper.core import BrowserConnection
-from scraper.platforms.udio.extractors_async import UdioSongExtractor
-from scraper.utils import OutputFormatter, get_logger, PathManager
+from udio_downloader.dev_tools.scraper.core import BrowserConnection
+from udio_downloader.dev_tools.scraper.platforms.udio.extractors_async import UdioSongExtractor
+from udio_downloader.dev_tools.scraper.utils import OutputFormatter, get_logger, PathManager
 
 
 async def main():

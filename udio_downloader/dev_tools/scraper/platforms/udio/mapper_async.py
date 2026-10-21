@@ -3,7 +3,7 @@ Udio-specific folder structure mapper (Playwright async version).
 """
 
 import asyncio
-from scraper.platforms.udio.extractors_async import UdioSongExtractor
+from .extractors_async import UdioSongExtractor
 
 
 class UdioFolderMapper:

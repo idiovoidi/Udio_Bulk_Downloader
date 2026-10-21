@@ -1,49 +1,26 @@
+---
+inclusion: always
+---
+
 # Technology Stack
 
-## Core Technologies
+## Python package (`udio_downloader/`)
 
-- **Language**: Python 3.10+
-- **Package Manager**: pip with requirements.txt
-- **CLI Framework**: Click for command-line interface
-- **Browser Automation**: Selenium WebDriver + Chrome DevTools Protocol (CDP)
-- **Web Scraping**: BeautifulSoup4 for HTML parsing
-- **Data Models**: Pydantic for validation, dataclasses for simple models
-- **HTTP Client**: Requests library
-- **Credential Storage**: keyring for secure credential management
+- Python 3.10+, `pip` with `requirements.txt`, tests with `pytest`
+- Click (CLI), Playwright async API (browser automation), SQLite (metadata and download state), Requests, tqdm, Pydantic
+- Playwright needs its browser binary: `playwright install chromium` (re-run after upgrading the package)
 
-## Key Dependencies
+## Chrome extension (`chrome_extension/`)
 
-- `selenium>=4.38.0` - Browser automation
-- `webdriver-manager>=4.0.2` - Automatic driver management
-- `click>=8.3.0` - CLI framework
-- `beautifulsoup4>=4.14.2` - HTML parsing
-- `requests>=2.32.5` - HTTP requests
-- `pydantic>=2.12.3` - Data validation
-- `tqdm>=4.67.1` - Progress bars
-- `keyring>=25.6.0` - Secure credential storage
+- Manifest V3, vanilla JavaScript, no bundler or npm. Load unpacked at `chrome://extensions/`.
 
-## Common Commands
+## Common commands
 
-### Setup
 ```bash
 pip install -r requirements.txt
-pip install -e .
-```
-
-### CLI Usage
-```bash
-# Map library structure
-python -m udio_downloader map --output ./downloads
-
-# Download all songs
-python -m udio_downloader download --output ./downloads --concurrent 3
-
-# Resume interrupted download
-python -m udio_downloader resume --output ./downloads
-```
-
-### Chrome Debugging
-Chrome must be started with remote debugging on port 9222:
-```bash
-chrome.exe --remote-debugging-port=9222 --user-data-dir="path/to/profile"
+playwright install chromium
+python -m udio_downloader import-metadata --json-file udio_metadata_<date>.json
+python -m udio_downloader download --no-headless   # log in on first run
+python -m udio_downloader status
+pytest tests
 ```

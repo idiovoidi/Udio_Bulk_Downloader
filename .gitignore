@@ -44,6 +44,5 @@ Thumbs.db
 # Session data
 .udio_downloader/
 
-# Old files
-map_folders_simple.py
-udio_library_structure.json
+# Test caches
+.pytest_cache/

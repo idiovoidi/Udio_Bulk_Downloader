@@ -1,107 +1,46 @@
-# Udio Library Mapper - Chrome Extension
+# Chrome extension: Udio Library Mapper
 
-Export your complete Udio library structure before platform shutdown.
+Runs inside your logged-in Udio tab, walks the folder tree and exports the library's metadata as JSON. It does **not** download audio; the Python package does that. See the [root README](../README.md) for how the two fit together.
 
-## 🎉 Now Available: Modular Architecture v2.0
+## Install
 
-This extension has been refactored into a clean, modular architecture!
+1. Open `chrome://extensions/` and enable **Developer mode**.
+2. **Load unpacked** and choose this `chrome_extension` folder.
+3. After editing code, click the refresh icon on the extension card and reload the Udio tab.
 
-### 📚 Documentation
-- 📖 **[INDEX.md](INDEX.md)** - Documentation hub (start here!)
-- 🚀 **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Complete project summary
-- 📊 **[COMPARISON.md](COMPARISON.md)** - Before/after comparison
-- 🔧 **[MIGRATION.md](MIGRATION.md)** - Migration guide
-- 📚 **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Developer reference
+## Use
 
-### ✨ What's New
-- 11 focused modules (down from 2 large files)
-- Better code organization (3-4x easier to maintain)
-- Comprehensive documentation (8 detailed guides)
-- Same features, better structure
+1. Go to `https://www.udio.com/library` and log in.
+2. Click the folder icon (📁) at the top right so the folder tree is open.
+3. Click the extension icon, then **Map Library Structure** and wait for it to finish.
+4. Click **📦 Export Metadata (JSON)** to save `udio_metadata_<date>.json`. This is the file the Python importer reads.
+5. Import that file with the Python CLI (`python -m udio_downloader import-metadata --json-file ...`).
 
-## Quick Start
+The other buttons (song checklist, "Export as JSON (Legacy)", text export, debug logs) are for manual use and are not importable.
 
-1. **Install**: Load unpacked from `chrome://extensions/` (enable Developer mode)
-2. **Navigate**: Go to `udio.com/library`
-3. **Open tree**: Click folder icon (📁) in top right
-4. **Map**: Click extension → "Map Library Structure"
-5. **Export**: Click "📋 Export Song Checklist"
+## Files
 
-## Features
+| File | Role |
+|---|---|
+| `manifest.json` | Manifest V3 config |
+| `content.js` | Content script on udio.com: maps folders/songs, builds the export |
+| `popup.html`, `popup.js` | Extension popup UI |
+| `background.js` | Service worker |
+| `logger.js` | Shared logger (loaded in the content script and popup) |
 
-### 📋 Song Checklist (Recommended)
-Complete list of all songs with:
-- Checkboxes to track downloads
-- URLs for each song
-- Folder organization preserved
-- Root directory songs included
-- Song metadata (duration, tags)
+There is no build step and no module system: scripts are loaded in the order listed in `manifest.json`.
 
-### 💾 JSON Export
-Machine-readable format with complete structure for programmatic use.
+## Contract with the Python side
 
-### 📄 Text Export
-Human-readable hierarchical format for browsing.
-
-## How It Works
-
-1. **Scans folder tree** - Recursively maps all folders and subfolders
-2. **Extracts songs** - Gets metadata from each folder
-3. **Includes root songs** - Captures songs not in any folder
-4. **Exports data** - Provides multiple formats for different uses
-
-## The Checklist
-
-Best tool for systematic downloading:
-
-```
-═══════════════════════════════════════════════════════════
-                    ROOT DIRECTORY
-═══════════════════════════════════════════════════════════
-[ ] 1. Song Title
-    URL: https://www.udio.com/songs/abc123
-    Duration: 3:45
-
-═══════════════════════════════════════════════════════════
-📁 My Folder > Subfolder
-═══════════════════════════════════════════════════════════
-[ ] 1. Another Song
-    URL: https://www.udio.com/songs/def456
-
-TOTAL SONGS: 239
-```
-
-**Usage**: Print or keep open, download each song via URL, mark [X] when done.
+`content.js` (`exportMetadataWithIncrementalSupport`) writes `exportVersion: "2.0"`; the importer warns on any other major version. Field details and the hash rule are in [../docs/EXPORT_FORMAT.md](../docs/EXPORT_FORMAT.md). If you change the export shape, update that doc and `udio_downloader/services/metadata_importer.py`.
 
 ## Troubleshooting
 
 | Issue | Fix |
-|-------|-----|
-| "Could not establish connection" | Refresh page (F5) |
-| "Folder tree panel not found" | Click folder icon (📁) |
-| No songs found | Ensure you're in library view |
-| Extension grayed out | Must be on udio.com |
+|---|---|
+| "Could not establish connection" | Reload the Udio tab (F5) |
+| "Folder tree panel not found" | Click the folder icon (📁) |
+| Songs missing | Make sure the folder tree is open before mapping |
+| Extension greyed out | You must be on udio.com |
 
-## Files
-
-- `manifest.json` - Extension config
-- `popup.html/js` - UI and logic
-- `content_v3.js` - Mapping engine
-- `background.js` - Lifecycle management
-
-## Limitations
-
-- Cannot automate downloads (Udio requires UI interaction)
-- Folder downloads don't preserve subfolders (use checklist instead)
-- Must manually download each song using provided URLs
-
-## Tips
-
-✓ Use checklist for systematic downloading
-✓ Download folder by folder to stay organized
-✓ Check off songs as you complete them
-✓ Keep checklist as permanent record
-
-## Support
-
-Open browser console (F12) for diagnostic information.
+Open DevTools (F12) on the Udio tab for the content-script log.

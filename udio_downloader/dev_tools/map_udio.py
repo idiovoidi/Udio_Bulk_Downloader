@@ -2,16 +2,16 @@
 Udio library folder mapper.
 
 Usage:
-Run: python map_udio.py
+Run: python -m udio_downloader.dev_tools.map_udio
 
 The script will launch Chrome with your saved profile.
 If not logged in, log in to Udio and navigate to your library.
 """
 
 import asyncio
-from scraper.core import BrowserConnection
-from scraper.platforms.udio.mapper_async import UdioFolderMapper
-from scraper.utils import OutputFormatter, get_logger, PathManager
+from udio_downloader.dev_tools.scraper.core import BrowserConnection
+from udio_downloader.dev_tools.scraper.platforms.udio.mapper_async import UdioFolderMapper
+from udio_downloader.dev_tools.scraper.utils import OutputFormatter, get_logger, PathManager
 
 
 async def main():
