@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Callable
 from datetime import datetime
 
+from ..utils.metadata_hash import calculate_metadata_hash, recalculate_hash_if_missing
+
 
 logger = logging.getLogger(__name__)
 
@@ -299,6 +301,9 @@ class DatabaseManager:
         try:
             for song in songs:
                 try:
+                    # Ensure metadata hash is present (calculate if missing)
+                    song = recalculate_hash_if_missing(song)
+                    
                     # Check if song exists
                     cursor.execute("SELECT metadata_hash FROM songs WHERE id = ?", (song['id'],))
                     existing = cursor.fetchone()
